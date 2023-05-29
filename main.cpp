@@ -106,18 +106,18 @@ int main(int argc, char* argv[]) {
         dots.emplace_back();
         //dots.back().resize(lineLen);
 
-        std::string n = std::tostring(i);
+        std::string n = std::to_string(i);
         for(int z = 0; i > 0 && z < n.size(); ++z) {
             int x = 2 - z;
             if(lines[i].reversed) {
                 x += longest;
             }
             x *= 9;
-            drawGlyph(n[n.size() - 1 - z], x, (2 + lines.size() - i) * 9 - 4);
+            drawGlyph(n[n.size() - 1 - z], BLACK, x, (2 + lines.size() - i) * 9 - 4);
         }
-        n = std::string("(") + std::tostring(lines[i].stitches.size()) + ")";
+        n = std::string("(") + std::to_string(lines[i].stitches.size()) + ")";
         for(int z = 0; i > 0 && z < n.size(); ++z) {
-            x = 3 + longest + 3;
+            int x = 3 + longest + 3;
             x *= 9;
             drawGlyph(n[n.size() - 1 - z], BLACK, x, (2 + lines.size() - i) * 9 - 4);
         }
@@ -155,7 +155,7 @@ int main(int argc, char* argv[]) {
                     // find combination in map
                     for(int z = 0; z < lines[i].stitches[j].map.size(); ++z) {
                         if(lines[i].stitches[j].map[z].src == taken
-                                && lines[i].stitches[j].map[z].dest == put)
+                                && lines[i].stitches[j].map[z].dst == put)
                         {
                             drawLine(lines[i].stitches[j].map[z].color, dots[i-1][pc+taken].first, dots[i-1][pc+taken].second, dots[i][cc].first, dots[i][cc].second);
                             break;

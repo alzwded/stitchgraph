@@ -1,5 +1,6 @@
+#include "draw.h"
 
-static char SUPPORTED = {
+static char SUPPORTED[] = {
     '0',
     '1',
     '2',
@@ -138,3 +139,10 @@ static int FONT[][9][9] = {
         { 1, 0, 0, 0, 0, 0, 0, 0, 0 },
     }
 };
+
+void drawLine(Color color, int x0, int y0, int x1, int y1)
+{}
+void drawMarker(Marker marker, Color color, int x, int y)
+{}
+void drawGlyph(char c, Color color, int left, int top)
+{}

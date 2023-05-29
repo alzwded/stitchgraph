@@ -17,4 +17,4 @@ enum Marker {
     ARROWUP,
 };
 
-#undef
+#endif
