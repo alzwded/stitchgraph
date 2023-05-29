@@ -1,0 +1,391 @@
+
+define symbol
+1/N (bobbles)
+N (stitches)
+inc N
+inc-left N
+inc-right N
+dec N
+dec-left N
+dec-right N
+cross N
+
+turn / loop
+
+
+
+for incs/decs, have magnetization, so bottom points to one below, top magnetized towards decrease by so many pixels
+
+something like...
+
+20k (20)
+3k *k2tog 2k* k  (16)
+16k
+
+
+(aligned, not magnetized)
+v  v  v   v    v  v   v    v  v   v    v  v    v   v  v  v
+v  v  v   ^    v  v   ^    v  v   ^    v  v    ^   v  v  v
+v  v  v  v  v  v  v  v  v  v  v  v  v  v  v  v  v  v  v  v
+
+asd
+
+
+
+define symbol
+1/N (bobbles)
+N (stitches)
+inc N
+inc-left N
+inc-right N
+dec N
+dec-left N
+dec-right N
+cross N
+
+turn / loop
+
+
+
+for incs/decs, have magnetization, so bottom points to one below, top magnetized towards decrease by so many pixels
+
+something like...
+
+20k (20)
+3k *k2tog 2k* k  (16)
+16k
+
+
+(aligned, not magnetized)
+v  v  v   v    v  v   v    v  v   v    v  v    v   v  v  v
+v  v  v   ^    v  v   ^    v  v   ^    v  v    ^   v  v  v
+v  v  v  v  v  v  v  v  v  v  v  v  v  v  v  v  v  v  v  v
+
+
+
+
+have two render modes, aligned (not magnetized) with liberal use of spaces; and
+distorted, where you can see the stitches (magnetized)
+
+even more alternate modes: use colored boxes instead of stitch textures
+
+
+maybe later add more modes: round, minimize distortion (move up&down)
+
+basic support should have knitting and tunisian (crochet almost always needs flowing renders, usually somewhat in the round, since stitches have variable height))
+
+
+
+
+syntax ideas....
+
+define k takes 1 puts 1
+define k2tog takes 2 puts 1 left
+define SSK takes 2 puts 1 right
+define CDD takes 3 puts 1
+define sk takes 1 puts 0
+define p takes 1 puts 1
+define SSP takes 2 puts 1 right
+define p2tog takes 2 puts 1 left
+define bo takes 1 puts 0
+define co takes 0 puts 1
+define c3f takes 6 puts 6
+define yo takes 1 puts 1
+define m1l takes 0 puts 1 left
+define m1r takes 0 puts 1 right
+
+
+tunisian
+
+define Tss takes 1 puts 1
+define Xss takes 2 puts 2
+
+
+views:
+- aligned (pattern), centers decreases to their pivot but leaves a lot of space
+- net, shows each stitch as a line, decreases converge into single point
+- distorted -- distorts stitches according to net
+- rotated -- plots stitches aligned to net, but rotates around center instead of distorting
+
+
+for aligned (pattern?) view, find out max row length, then align decreases (either up or down) to center of affected nodes
+hover over:
+- show comment (e.g. what Xss actually is)
+- highlight consumed stitches and child stitches (net)
+- 
+
+net is computed first
+
+use longest row to determine width
+if underflowing or overflowing, move everything
+
+computing alignment of next row based on increases/decreases:
+(rows go right-to-left)
+- find next inc/dec
+- if centered left and has impact right, go downto 0 and add "-1"
+- if centered right and has impact left, go upto END and add "+1"
+- if centered and has impact left and right, go in both directions and add -1 and +1
+
+use 9x9 blocks; i.e. first row (co's) are aligned on the 5th pixel; for CO 20 you'd have 180 px with 20 points
+
+
+
+
+co 10 turn
+..........
+p 10 turn
+..........
+..........
+*k m1l* k turn
+................... (19)
+. . . . . . . . . . (10)
+. . . . . . . . . . (10)
+
+
+
+the algorithm above is too annoying; just center each line and connect the net up; we'll render on top
+
+we still need to compute padding for things when stuff gets newly spanwed; padding is (delta_stitches+1) / prev_stitches
+
+need to render net and stitch together (distorted, rotated or pattern)
+define pattern block in 9 9character strings using x (on) and ' ' (off)
+net will be drawn on top in green
+
+
+parser initially determines size of pattern => that many pixels
+then creates Canvas
+then draws
+
+the "left", "right" and "" pragmas for incs and decs determine how stuff below/above gets padded out in pattern mode
+i.e. if k2tog, then the |\ character will get drawn over the left-most stitch
+     for CDD, then the ^ will get drawn in the middle
+
+
+render width is "puts"
+
+maybe focus on net/distorted rendering initially
+
+each cell has a "type", a "prev":[], a "next":[]
+organized in rows {
+   left_padding: 0,
+   cells: [{
+      stitch: 0,
+      prev: [0],
+      next: [0]
+   }]
+}
+
+stitch: {
+     pattern: [
+         "x       x",
+         "x       x",
+         " x     x ",
+         " x     x ",
+         "  x   x  ",
+         "  x   x  ",
+         "   x x   ",
+         "   x x   ",
+         "    x    "
+      ],
+      takes: 1,
+      puts: 1,
+      align: ""
+}
+
+
+
+stitch instructions must operate on net based purely on takes/puts/align, the cross is also important;
+the definition should be:
+c3f
+takes 6
+puts 6
+3 -> 0
+4 -> 1
+5 -> 2
+0 -> 3
+1 -> 4
+2 -> 5
+
+cdd
+takes 3
+puts 1
+0 -> 0
+2 -> 0
+1 -> 0
+
+
+
+we'll go with "nevermind" on alignment
+
+
+so definition:
+
+"stitch": {
+  takes: 3,
+  puts: 1,
+  rules: undefined || [
+    { src: 0, dst: 0 },
+    { src: 1, dst: 0 },
+    { src: 2, dst: 0 },
+  ]
+}
+
+there should be a way to associate graphics... it needs to be rendered in a sort of parallelogram within the target bounding box
+
+or just assign color to the lines... that should be kick ass
+
+
+if turn, then reverse array for WS rows
+if first is WS, this must be mentioned
+
+
+takes is default 1, puts is default 1, rules are default in order until you run out, then it sticks to last
+
+
+there's still an issue with stuff like button holes, because you'd need to BO 3 and CO 3 the next row; the net must be disconnected
+
+perhaps just build the net as a graph and find a way to render it?
+CO's, BO's and YO's introduce disconnections in the net
+but maybe we don't care?
+
+
+
+when deciding point locations, minimize distance to all connected stitches, which can be one..all of below, above, left, right
+all distances should be the same?
+
+
+yo would just be takes 0 puts 1, same as co
+bo would be takes 1 puts 0
+
+
+
+just distribute points, connect as appropriate (keep running pointer to previous row for the "take" part)
+
+and that's it!
+
+
+
+
+
+do it in C and libpng
+
+stitchnet
+
+	parser
+		stitch library
+			key
+			description
+			takes (default 1)
+			puts (default 1)
+			map (default empty)
+                src
+                dst
+                color (default black)
+			color (default black)
+		instructions
+			:stitch: :number:
+			turn
+			space (-)
+			* based repeats
+			[ ] based repeats (finds next ])
+			( ) based repeats (finds next ))
+			{ } based repeats (finds next })
+	initCanvas
+		compute height = number of rows
+		compute width = longest row
+		2 empty rows of 9x9
+		3 columns of 9x9 ; "width" columns of 9x9 ; 3 columns of 9x9 ; 5 columns of 9x9
+			row number if odd number turns (3)
+			stitch dots (width)
+			row number if even number turns (3)
+			paren (1)
+			stitch count for row (3)
+			paren (1)
+		2 empty rows of 9x9
+		fill with white
+	drawLine routine
+		horizontal (dx > dy)
+		for x = start_x to end_x
+			y = start_y + (x - start_x) / dx * dy
+			pL = 1.f - fract(y)
+			pR = fract(y)
+			pixels[floor(y)][x] = pL * color + (1 - pL) * background
+			pixels[floor(y)+1][x] = pR * color + (1 - pR) * background
+		vertical (dx <= dy)
+		for y = start_y to end_y
+			x = start_x + (y - start_y) / dy * dx
+			pL = 1.f - fract(x)
+			pR = fract(x)
+			pixels[y][floor(x)] = pL * color + (1 - pL) * background
+			pixels[y][floor(x)+1] = pR * color + (1 - pR) * background
+	drawNumber routine
+		canned 9x9 digits to render line numbers; reserve 3 slots; 1 pixel padding above and right (so 8x8)
+		predefine 0..9, ( and )
+	getBase routine
+	getCenter routine
+	markers
+		drawMarker routine: or
+			5x5 circle around getBase (takes=0)
+			5x1 line at getBase (puts=0)
+            5x3 squiggly line at getBase (not used)
+			3x3 dot on getBase (takes==puts)
+			5x3 triangle below getBase (takes > puts)
+			5x3 triangle above getBase (takes < puts)
+		bitblt routine (for "graphics", all are 5x5 mini graphics centered on getBase()) (for font)
+	interpreter (establish connectivity)
+	render
+        fill bg             (pass 0)
+		draw net (png)      (pass 1)
+        draw row number     (pass 3)
+        draw row stitch count (pass 3)
+        draw marker         (pass 2)
+        there should be a render list:
+            marker(type) x y      center x&y
+            line x0 y0 x1 y1      slightly antialiased
+            font(c) x y           top left x&y
+	
+	
+stuff like m1l should be k-m1l (takes 1 puts 2), m1r-k, or m1r-k-m1l (takes 1 puts 3)
+
+
+
+ 012345678
+0
+1    x
+2   xx
+3  x x
+4 x  x
+5    x
+6    x
+7    x
+8xxxxxxxx
+
+ 012345678
+0
+1  xxxx
+2 x    x
+3 x    x
+4     x
+5    x
+6   x 
+7  x  
+8 xxxxxxx
+
+ 012345678
+0
+1  xxxx
+2 x    x
+3     x 
+4    x 
+5     x
+6      x
+7 x    x
+8  xxxx  
+
+
+
+
+if starting right (default), put number on right
+if starting left (after odd number of turns), put number on left
+always 3 slots
+always offset by 5 from top (4 from bottom) so that their center is aligned to dots

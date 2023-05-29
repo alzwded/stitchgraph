@@ -1,0 +1,6 @@
+*.png
+stitchgraph
+*.o
+__*
+*log*
+*.core
