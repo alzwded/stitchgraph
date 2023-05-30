@@ -13,14 +13,16 @@ struct MapEntry
 
 struct Stitch
 {
-    const char* key;
-    const char* description;
-    bool blank;
-    int takes;
-    int puts;
-    Marker marker;
-    Color color;
-    std::vector<MapEntry> map;
+    const char* key = "";
+    const char* description = "";
+    bool blank = true;
+    int takes = 0;
+    int puts = 0;
+    Marker marker = DOT;
+    Color color = BLACK;
+    std::vector<MapEntry> map = {};
+    bool markerBefore = false;
+    bool markerAfter = false;
 };
 
 static std::vector<Stitch> STITCHES {

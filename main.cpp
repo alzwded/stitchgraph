@@ -20,7 +20,7 @@ struct Line
 struct Dot
 {
     int x, y;
-    int skip;
+    bool skip;
 };
 
 Line parse_line(std::string const& sline)
@@ -47,6 +47,7 @@ Line parse_line(std::string const& sline)
             rval.stitches.insert(rval.stitches.end(), intermed.stitches.begin(), intermed.stitches.end());
         }
     };
+    bool marker = false;
     while(std::getline(is, s, ' ')) {
         if(s == "*") {
             parse_paren("*");
@@ -59,7 +60,14 @@ Line parse_line(std::string const& sline)
             continue;
         } else if(s == "turn") {
             rval.reversed = true;
+            if(marker) {
+                rval.stitches.back().markerAfter = true;
+                marker = false;
+            }
             return rval;
+        } else if(s.substr(0, 1) == "!") {
+            marker = true;
+            continue;
         }
 
         bool ok = false;
@@ -72,6 +80,10 @@ Line parse_line(std::string const& sline)
 
                 for(int n = 0; n < rep; ++n) {
                     rval.stitches.push_back(STITCHES[i]);
+                    if(marker) {
+                        rval.stitches.back().markerBefore = true;
+                        marker = false;
+                    }
                 }
                 ok = true;
                 break;
@@ -116,6 +128,9 @@ int main(int argc, char* argv[]) {
         }
         if(!ll.reversed) { // always left-to-right for later
             std::reverse(ll.stitches.begin(), ll.stitches.end());
+            std::for_each(ll.stitches.begin(), ll.stitches.end(), [](Stitch& st) {
+                    std::swap(st.markerBefore, st.markerAfter);
+                    });
         }
         if(ll.stitches.size() > 0) {
             lines.push_back(ll);
@@ -134,6 +149,7 @@ int main(int argc, char* argv[]) {
         dots.emplace_back();
 
         std::string n = std::to_string(i);
+        // draw line number
         for(int z = 0; i > 0 && z < n.size(); ++z) {
             int x = 0;
             if(!lines[i].reversed) {
@@ -145,6 +161,7 @@ int main(int argc, char* argv[]) {
             x *= 9;
             drawGlyph(hcanvas, n[n.size() - 1 - z], BLACK, x, (2 + lines.size() - 1 - i) * 9 - 3);
         }
+        // draw loop counter
         n = std::string("(") + std::to_string(std::accumulate(lines[i].stitches.begin(), lines[i].stitches.end(), 0, [](int acc, Stitch const& st) -> int {
                         return acc + st.puts;
                         })) + ")";
@@ -171,14 +188,14 @@ int main(int argc, char* argv[]) {
                 dots.back().emplace_back();
                 dots.back().back().x = 0;
                 dots.back().back().y = 0;
-                dots.back().back().skip = 1;
+                dots.back().back().skip = true;
                 ++cc;
             }
 
             if(lines[i].stitches[j].puts == 0) { // if bind off
                 for(int k = 0; k < lines[i].stitches[j].takes; ++k) {
                     dots.back().emplace_back();
-                    dots.back().back().skip = 1;
+                    dots.back().back().skip = true;
                     dots.back().back().y = (1 + lines.size() - 1 - i) * 9 + 7;
                     auto delta = (longest - lineLen) * 9;
                     dots.back().back().x = delta / 2 + cc * 9 + 3 * 9 + 4;
@@ -187,7 +204,7 @@ int main(int argc, char* argv[]) {
             } else { // if !bind off
                 for(int k = 0; k < lines[i].stitches[j].puts; ++k) {
                     dots.back().emplace_back();
-                    dots.back().back().skip = 0;
+                    dots.back().back().skip = false;
                     dots.back().back().y = (1 + lines.size() - 1 - i) * 9 + 7;
                     auto delta = (longest - lineLen) * 9;
                     dots.back().back().x = delta / 2 + cc * 9 + 3 * 9 + 4;
@@ -208,6 +225,12 @@ int main(int argc, char* argv[]) {
         while(cc < dots[i].size() && dots[i][cc].skip) cc++;
         if(i > 0) while(pc < dots[i-1].size() && dots[i-1][pc].skip) pc++;
         for(int j = 0; j < lines[i].stitches.size(); ++j) {
+            if(lines[i].stitches[j].markerBefore) {
+                drawMarker(hcanvas, EXCLAMATION, RED, dots[i][cc].x - 4, dots[i][cc].y);
+            }
+            if(lines[i].stitches[j].markerAfter) {
+                drawMarker(hcanvas, EXCLAMATION, RED, dots[i][cc].x + 5, dots[i][cc].y);
+            }
             if(lines[i].stitches[j].blank) continue;
             for(int put = 0; put < lines[i].stitches[j].puts; ++put) {
                 if(cc > 0 && !dots[i][cc-1].skip) {

@@ -15,6 +15,7 @@ enum Marker {
     SQUIGGLE = 2,
     ARROWDOWN = 3,
     ARROWUP = 4,
+    EXCLAMATION = 5,
 };
 
 #endif

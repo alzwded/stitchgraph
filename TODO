@@ -1,9 +1,9 @@
 - add !pragmas:
-  - !attention
+  - [x] !attention
     - insert some sort of exclamation point in between attentioned stitches
-  - !yarn-change
+  - [x] !yarn-change
     - same as attention, but with color
-  - !pm
+  - [x] !pm
     - place marker; add some sort of marker glyph (vertical line between stitches?)
   - !align-left
     - force alignment left instead of center
