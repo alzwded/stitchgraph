@@ -256,7 +256,7 @@ int main(int argc, char* argv[]) {
         } // for each stitch
     } // for each line
 
-    writeCanvas(hcanvas, "__test.png");
+    writeCanvas(hcanvas, "graph.png");
 
     return 0;
 }
