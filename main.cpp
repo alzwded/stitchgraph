@@ -62,6 +62,7 @@ Line parse_line(std::string const& sline)
             return rval;
         }
 
+        bool ok = false;
         for(int i = 0; i < STITCHES.size(); ++i) {
             if(s == STITCHES[i].key) {
                 if(!std::getline(is, s, ' ')) {
@@ -72,8 +73,12 @@ Line parse_line(std::string const& sline)
                 for(int n = 0; n < rep; ++n) {
                     rval.stitches.push_back(STITCHES[i]);
                 }
+                ok = true;
                 break;
             }
+        }
+        if(!ok) {
+            printf("WARN: %s is not a stitch\n", s.c_str());
         }
     }
     return rval;
@@ -132,7 +137,7 @@ int main(int argc, char* argv[]) {
         for(int z = 0; i > 0 && z < n.size(); ++z) {
             int x = 0;
             if(lines[i].reversed) {
-                x = n.size() - 1 - x;
+                x = n.size() - 1 - z;
                 x += longest + 3;
             } else {
                 x = 2 - z;
@@ -233,11 +238,9 @@ int main(int argc, char* argv[]) {
                             };
                             auto pc_taken = NTH_TAKEN(pc, taken);
                             drawLine(hcanvas, lines[i].stitches[j].map[z].color, dots[i-1][pc_taken].x, dots[i-1][pc_taken].y, dots[i][cc].x, dots[i][cc].y);
-                            break;
                         }
                     } // for each MapEntry
                 } // for each taken
-break_taken:
                 if(cc < dots[i].size()) {
                     cc++;
                     while(cc < dots[i].size() && dots[i][cc].skip) ++cc;

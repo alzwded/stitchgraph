@@ -24,6 +24,7 @@ struct Stitch
 };
 
 static std::vector<Stitch> STITCHES {
+    // BLUE vertical stitches are below
         {
             "-", "(blank)", true,
             0, 0,
@@ -31,11 +32,15 @@ static std::vector<Stitch> STITCHES {
         {
             "co", "cast on", false,
             0, 1,
-            DOT, RED,
+            DOT, GREEN,
             {}
         },
         {
             "bo", "bind off", false,
+            1, 0,
+        },
+        {
+            "sk", "skip", false,
             1, 0,
         },
         {
@@ -49,7 +54,7 @@ static std::vector<Stitch> STITCHES {
         {
             "p", "purl", false,
             1, 1,
-            SQUIGGLE, BLACK,
+            SQUIGGLE, BLUE,
             {
                 { 0, 0, BLACK },
             }
@@ -59,12 +64,30 @@ static std::vector<Stitch> STITCHES {
             2, 1,
             ARROWUP, RED,
             {
+                { 0, 0, BLACK },
+                { 1, 0, BLUE },
+            }
+        },
+        {
+            "SSK", "slip slip knit", false,
+            2, 1,
+            ARROWUP, RED,
+            {
                 { 0, 0, BLUE },
                 { 1, 0, BLACK },
             }
         },
         {
-            "SSK", "slip slip knit", false,
+            "p2tog", "purl two together", false,
+            2, 1,
+            ARROWUP, RED,
+            {
+                { 0, 0, BLUE },
+                { 1, 0, BLACK },
+            }
+        },
+        {
+            "SSP", "slip slip purl", false,
             2, 1,
             ARROWUP, RED,
             {
@@ -89,11 +112,17 @@ static std::vector<Stitch> STITCHES {
             "|", "Tunisian pick up", false,
             1, 1,
             DOT, RED,
+            {
+                { 0, 0, BLACK },
+            }
         },
         {
             "||", "Tunisian end of row", false,
             1, 1,
             DOT, RED,
+            {
+                { 0, 0, GREEN },
+            }
         },
         {
             "Xss", "crossed tunisian simple stitch", false,
