@@ -181,7 +181,7 @@ int main(int argc, char* argv[]) {
                     dots.back().back().skip = 1;
                     dots.back().back().y = (1 + lines.size() - 1 - i) * 9 + 7;
                     auto delta = (longest - lineLen) * 9;
-                    dots.back().back().x = delta / 2 + cc * 9 + 3 * 9;
+                    dots.back().back().x = delta / 2 + cc * 9 + 3 * 9 + 4;
                     ++cc;
                 }
             } else { // if !bind off
@@ -190,7 +190,7 @@ int main(int argc, char* argv[]) {
                     dots.back().back().skip = 0;
                     dots.back().back().y = (1 + lines.size() - 1 - i) * 9 + 7;
                     auto delta = (longest - lineLen) * 9;
-                    dots.back().back().x = delta / 2 + cc * 9 + 3 * 9;
+                    dots.back().back().x = delta / 2 + cc * 9 + 3 * 9 + 4;
                     ++cc;
                 } // for each put stitch
             } // if !bind off
