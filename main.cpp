@@ -104,7 +104,7 @@ int main(int argc, char* argv[]) {
     }
 
     std::vector<Line> lines;
-    bool reversed = false;
+    bool reversed = true;
     size_t longest = 0; // FIXME count this by reducing "puts"
     for(auto&& l : slines) {
         Line ll = parse_line(l);
@@ -136,7 +136,7 @@ int main(int argc, char* argv[]) {
         std::string n = std::to_string(i);
         for(int z = 0; i > 0 && z < n.size(); ++z) {
             int x = 0;
-            if(lines[i].reversed) {
+            if(!lines[i].reversed) {
                 x = n.size() - 1 - z;
                 x += longest + 3;
             } else {
