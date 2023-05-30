@@ -29,7 +29,8 @@ Line parse_line(std::string const& sline)
         false,
         {}
     };
-    std::stringstream is(sline);
+    auto foundColon = sline.find(':');
+    std::stringstream is(foundColon == std::string::npos ? sline : sline.substr(foundColon + 1));
     std::string s;
     auto parse_paren = [&is, &rval](std::string const& matching) {
         std::string s;
@@ -49,6 +50,7 @@ Line parse_line(std::string const& sline)
     };
     bool marker = false;
     while(std::getline(is, s, ' ')) {
+        if(s.empty()) continue;
         if(s == "*") {
             parse_paren("*");
             continue;
