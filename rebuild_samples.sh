@@ -14,7 +14,7 @@ for i in samples/*.png ; do
     ./stitchgraph < ${i%.*}
     cp graph.png $i
     ii=${i##*/}
-    title="#${ii%.*}"
+    title="# ${ii%.*}"
     title=${title//_/\\_}
     echo "${title}" >> samples/README.md
     echo >> samples/README.md
