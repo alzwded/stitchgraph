@@ -1,9 +1,9 @@
 co 10 turn
-| 10
-| 1 Xss 4 || 1
-| 1 Tss 1 Xss 3 Tss 1 || 1
-| 1 Xss 4 || 1
-| 1 Tss 1 Xss 3 Tss 1 || 1
+| 10 return
+| 1 Xss 4 || 1 return
+| 1 Tss 1 Xss 3 Tss 1 || 1 return
+| 1 Xss 4 || 1 return
+| 1 Tss 1 Xss 3 Tss 1 || 1 return
 | 1 Xss 4 || 1
 | 1 Tss 1 Xss 3 Tss 1 || 1
 | 1 Xss 4 || 1
