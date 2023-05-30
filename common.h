@@ -10,11 +10,11 @@ enum Color
 };
 
 enum Marker {
-    DOT,
-    CIRCLE,
-    SQUIGGLE,
-    ARROWDOWN,
-    ARROWUP,
+    DOT = 0,
+    CIRCLE = 1,
+    SQUIGGLE = 2,
+    ARROWDOWN = 3,
+    ARROWUP = 4,
 };
 
 #endif

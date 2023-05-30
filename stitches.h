@@ -15,7 +15,7 @@ struct Stitch
 {
     const char* key;
     const char* description;
-    bool empty;
+    bool blank;
     int takes;
     int puts;
     Marker marker;
@@ -31,7 +31,7 @@ static std::vector<Stitch> STITCHES {
         {
             "co", "cast on", false,
             0, 1,
-            DOT, BLACK,
+            DOT, RED,
             {}
         },
         {
