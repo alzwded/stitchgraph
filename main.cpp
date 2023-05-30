@@ -67,6 +67,12 @@ Line parse_line(std::string const& sline)
                 marker = false;
             }
             return rval;
+        } else if(s == "join" || s == "return") {
+            if(marker) {
+                rval.stitches.back().markerAfter = true;
+                marker = false;
+            }
+            return rval;
         } else if(s.substr(0, 1) == "!") {
             marker = true;
             continue;
