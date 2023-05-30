@@ -66,8 +66,8 @@ static std::vector<Stitch> STITCHES {
             2, 1,
             ARROWUP, RED,
             {
-                { 0, 0, BLACK },
-                { 1, 0, BLUE },
+                { 0, 0, BLUE },
+                { 1, 0, BLACK },
             }
         },
         {
@@ -75,8 +75,8 @@ static std::vector<Stitch> STITCHES {
             2, 1,
             ARROWUP, RED,
             {
-                { 0, 0, BLUE },
-                { 1, 0, BLACK },
+                { 0, 0, BLACK },
+                { 1, 0, BLUE },
             }
         },
         {
@@ -84,8 +84,8 @@ static std::vector<Stitch> STITCHES {
             2, 1,
             ARROWUP, RED,
             {
-                { 0, 0, BLUE },
-                { 1, 0, BLACK },
+                { 0, 0, BLACK },
+                { 1, 0, BLUE },
             }
         },
         {
@@ -93,8 +93,8 @@ static std::vector<Stitch> STITCHES {
             2, 1,
             ARROWUP, RED,
             {
-                { 0, 0, BLACK },
-                { 1, 0, BLUE },
+                { 0, 0, BLUE },
+                { 1, 0, BLACK },
             }
         },
         {
@@ -134,8 +134,8 @@ static std::vector<Stitch> STITCHES {
             2, 2,
             DOT, BLUE,
             {
-                { 1, 0, BLUE },
                 { 0, 1, BLACK },
+                { 1, 0, BLUE },
             }
         },
         {

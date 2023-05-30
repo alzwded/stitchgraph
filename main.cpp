@@ -138,6 +138,10 @@ int main(int argc, char* argv[]) {
             std::reverse(ll.stitches.begin(), ll.stitches.end());
             std::for_each(ll.stitches.begin(), ll.stitches.end(), [](Stitch& st) {
                     std::swap(st.markerBefore, st.markerAfter);
+                    std::for_each(st.map.begin(), st.map.end(), [&st](MapEntry& me) {
+                            me.src = st.takes - 1 - me.src;
+                            me.dst = st.puts - 1 - me.dst;
+                            });
                     });
         }
         if(ll.stitches.size() > 0) {
@@ -268,6 +272,8 @@ int main(int argc, char* argv[]) {
                                 return rval;
                             };
                             auto pc_taken = NTH_TAKEN(pc, taken);
+                            printf("    put = %d taken = %d src = %d dst = %d color = %06X\n",
+                                    put, taken, lines[i].stitches[j].map[z].src,lines[i].stitches[j].map[z].dst,lines[i].stitches[j].map[z].color);
                             drawLine(hcanvas, lines[i].stitches[j].map[z].color, dots[i-1][pc_taken].x, dots[i-1][pc_taken].y, dots[i][cc].x, dots[i][cc].y);
                         }
                     } // for each MapEntry
