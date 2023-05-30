@@ -143,6 +143,40 @@ static std::vector<Stitch> STITCHES {
             0, 1,
             CIRCLE, GREEN,
         },
+        {
+            "ml", "make 1 left", false,
+            0, 1,
+            DOT, GREEN,
+            {
+                { -1, 0, BLACK }
+            }
+        },
+        {
+            "M", "make 1", false,
+            0, 1,
+            DOT, GREEN,
+            {
+                { 0, 0, BLACK }
+            }
+        },
+        {
+            "mr", "make 1 right", false,
+            0, 1,
+            DOT, GREEN,
+            {
+                { +1, 0, BLACK }
+            }
+        },
+        {
+            "CDD", "central double decrease", false,
+            3, 1,
+            ARROWUP, RED,
+            {
+                { 0, 0, BLUE },
+                { 1, 0, BLACK },
+                { 2, 0, BLUE },
+            }
+        },
 };
 
 #endif

@@ -98,7 +98,8 @@ Line parse_line(std::string const& sline)
             }
         }
         if(!ok) {
-            printf("WARN: %s is not a stitch\n", s.c_str());
+            printf("ERROR: %s is not a stitch\n", s.c_str());
+            abort();
         }
     }
     return rval;
@@ -252,6 +253,9 @@ int main(int argc, char* argv[]) {
                     drawLine(hcanvas, BLACK, dots[i][cc+1].x, dots[i][cc+1].y, dots[i][cc].x, dots[i][cc].y);
                 }
                 drawMarker(hcanvas, lines[i].stitches[j].marker, lines[i].stitches[j].color, dots[i][cc].x, dots[i][cc].y);
+                if(lines[i].stitches[j].takes == 0 && !lines[i].stitches[j].map.empty()) {
+                    drawLine(hcanvas, lines[i].stitches[j].map[0].color, dots[i-1][pc].x - 5, dots[i-1][pc].y, dots[i][cc].x, dots[i][cc].y);
+                }
                 for(int taken = 0; taken < lines[i].stitches[j].takes; ++taken) {
                     // find combination in map
                     for(int z = 0; z < lines[i].stitches[j].map.size(); ++z) {
