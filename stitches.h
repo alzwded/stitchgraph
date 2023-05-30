@@ -107,13 +107,16 @@ static std::vector<Stitch> STITCHES {
             "pu", "pick up", false,
             1, 1,
             DOT, RED,
+            {
+                { 0, 0, RED },
+            }
         },
         {
             "|", "Tunisian pick up", false,
             1, 1,
             DOT, RED,
             {
-                { 0, 0, BLACK },
+                { 0, 0, RED },
             }
         },
         {

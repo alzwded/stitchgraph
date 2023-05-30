@@ -206,7 +206,7 @@ int main(int argc, char* argv[]) {
         int cc = 0;
         int pc = 0;
         while(cc < dots[i].size() && dots[i][cc].skip) cc++;
-        if(i > 0) while(pc < dots[i-1].size() && dots[i-1][pc].x < 0) pc++;
+        if(i > 0) while(pc < dots[i-1].size() && dots[i-1][pc].skip) pc++;
         for(int j = 0; j < lines[i].stitches.size(); ++j) {
             if(lines[i].stitches[j].blank) continue;
             for(int put = 0; put < lines[i].stitches[j].puts; ++put) {
