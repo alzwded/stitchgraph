@@ -233,9 +233,8 @@ static std::vector<Stitch> STITCHES {
         },
         {
             "ch", "chain", false,
-            1, 1,
+            0, 1,
             CIRCLE, GREEN,
-            {}
         },
 };
 
