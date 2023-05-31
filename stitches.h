@@ -213,6 +213,71 @@ static std::vector<Stitch> STITCHES {
             }
         },
         {
+            "4s", "generic stitch 4 in same loop", false,
+            1, 4,
+            ARROWDOWN, GREEN,
+            {
+                { 0, 0, BLACK },
+                { 0, 1, GREEN },
+                { 0, 2, GREEN },
+                { 0, 2, GREEN },
+            }
+        },
+        {
+            "5s", "generic stitch 5 in same loop", false,
+            1, 5,
+            ARROWDOWN, GREEN,
+            {
+                { 0, 0, BLACK },
+                { 0, 1, GREEN },
+                { 0, 2, GREEN },
+                { 0, 3, GREEN },
+                { 0, 4, GREEN },
+            }
+        },
+        {
+            "6s", "generic stitch 6 in same loop", false,
+            1, 6,
+            ARROWDOWN, GREEN,
+            {
+                { 0, 0, BLACK },
+                { 0, 1, GREEN },
+                { 0, 2, GREEN },
+                { 0, 3, GREEN },
+                { 0, 4, GREEN },
+                { 0, 5, GREEN },
+            }
+        },
+        {
+            "7s", "generic stitch 7 in same loop", false,
+            1, 7,
+            ARROWDOWN, GREEN,
+            {
+                { 0, 0, BLACK },
+                { 0, 1, GREEN },
+                { 0, 2, GREEN },
+                { 0, 3, GREEN },
+                { 0, 4, GREEN },
+                { 0, 5, GREEN },
+                { 0, 6, GREEN },
+            }
+        },
+        {
+            "8s", "generic stitch 8 in same loop", false,
+            1, 8,
+            ARROWDOWN, GREEN,
+            {
+                { 0, 0, BLACK },
+                { 0, 1, GREEN },
+                { 0, 2, GREEN },
+                { 0, 3, GREEN },
+                { 0, 4, GREEN },
+                { 0, 5, GREEN },
+                { 0, 6, GREEN },
+                { 0, 7, GREEN },
+            }
+        },
+        {
             "s2tog", "generic stitch two together", false,
             2, 1,
             ARROWUP, RED,
