@@ -102,22 +102,40 @@ pu 1 * p 1 k 1 * 3 p 1 turn
 
 ![samples/markers.png](markers.png)
 
+# round
+
+```
+   ch 7 !air ch 3 !join-with-self ch 6 join
+1: 3s 1 s 6 sk 1 3s 1 sk 1 s 6 join
+2: [ 2s 3 s 6 ] 2 join
+3: [ * 2s 1 s 1 * 3 s 6 ] 2 join
+4: [ * 2s 1 s 2 * 3 s 6 ] 2 join
+5: s 36 join
+6: s 18 !turn - 2 !return s 16 turn
+7: s 16 !turn - 2 !return s 18 turn
+8: s 18 ch 2 s 16 join
+9: s 18  s 18 join
+10: * s2tog 1 s 2 * 3 s 6    * s2tog 1 s 2 * 3 s 6 join
+```
+
+![samples/round.png](round.png)
+
 # tunisianx
 
 ```
 co 10 turn
-| 10 return
-| 1 Xss 4 || 1 return
-| 1 Tss 1 Xss 3 Tss 1 || 1 return
-| 1 Xss 4 || 1 return
-| 1 Tss 1 Xss 3 Tss 1 || 1 return
-| 1 Xss 4 || 1
-| 1 Tss 1 Xss 3 Tss 1 || 1
-| 1 Xss 4 || 1
-| 1 Tss 1 Xss 3 Tss 1 || 1
-| 1 Tss 1 || 1  sk 4      | 1  Tss 1 || 1
-| 1 Tss 1 || 1  - 4      | 1  Tss 1 || 1
-bo 3 - 4 bo 3
+ 1: | 10 return
+ 2: | 1 Xss 4 || 1 return
+ 3: | 1 Tss 1 Xss 3 Tss 1 || 1 return
+ 4: | 1 Xss 4 || 1 return
+ 5: | 1 Tss 1 Xss 3 Tss 1 || 1 return
+ 6: | 1 Xss 4 || 1
+ 7: | 1 Tss 1 Xss 3 Tss 1 || 1
+ 8: | 1 Xss 4 || 1
+ 9: | 1 Tss 1 Xss 3 Tss 1 || 1
+10: | 1 Tss 1 || 1  - 4      | 1  Tss 1 || 1
+11: | 1 Tss 1 || 1  - 4      | 1  Tss 1 || 1
+12: bo 3 - 4 bo 3
 ```
 
 ![samples/tunisianx.png](tunisianx.png)

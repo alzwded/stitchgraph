@@ -29,6 +29,14 @@ static std::vector<Stitch> STITCHES {
     // BLUE vertical stitches are below
         {
             "-", "(blank)", true,
+            1, 1,
+        },
+        {
+            "<", "(blank, pad left)", true,
+            0, 0,
+        },
+        {
+            ">", "(blank, pad right)", true,
             0, 0,
         },
         {
@@ -38,11 +46,11 @@ static std::vector<Stitch> STITCHES {
             {}
         },
         {
-            "bo", "bind off", false,
-            1, 0,
+            "bo", "bind off", true,
+            1, 1,
         },
         {
-            "sk", "skip", false,
+            "sk", "skip", true,
             1, 0,
         },
         {
@@ -176,6 +184,58 @@ static std::vector<Stitch> STITCHES {
                 { 1, 0, BLACK },
                 { 2, 0, BLUE },
             }
+        },
+        {
+            "s", "generic stitch", false,
+            1, 1,
+            DOT, BLACK,
+            {
+                { 0, 0, BLACK },
+            }
+        },
+        {
+            "2s", "generic stitch twice in same loop", false,
+            1, 2,
+            ARROWDOWN, GREEN,
+            {
+                { 0, 0, BLACK },
+                { 0, 1, GREEN }
+            }
+        },
+        {
+            "3s", "generic stitch thrice in same loop", false,
+            1, 3,
+            ARROWDOWN, GREEN,
+            {
+                { 0, 0, BLACK },
+                { 0, 1, GREEN },
+                { 0, 2, GREEN }
+            }
+        },
+        {
+            "s2tog", "generic stitch two together", false,
+            2, 1,
+            ARROWUP, RED,
+            {
+                { 0, 0, BLUE },
+                { 1, 0, BLACK }
+            }
+        },
+        {
+            "s3tog", "generic stitch three together", false,
+            3, 1,
+            ARROWUP, RED,
+            {
+                { 0, 0, BLUE },
+                { 1, 0, BLUE },
+                { 2, 0, BLACK },
+            }
+        },
+        {
+            "ch", "chain", false,
+            1, 1,
+            CIRCLE, GREEN,
+            {}
         },
 };
 

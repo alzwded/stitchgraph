@@ -1,13 +1,13 @@
 co 10 turn
-| 10 return
-| 1 Xss 4 || 1 return
-| 1 Tss 1 Xss 3 Tss 1 || 1 return
-| 1 Xss 4 || 1 return
-| 1 Tss 1 Xss 3 Tss 1 || 1 return
-| 1 Xss 4 || 1
-| 1 Tss 1 Xss 3 Tss 1 || 1
-| 1 Xss 4 || 1
-| 1 Tss 1 Xss 3 Tss 1 || 1
-| 1 Tss 1 || 1  sk 4      | 1  Tss 1 || 1
-| 1 Tss 1 || 1  - 4      | 1  Tss 1 || 1
-bo 3 - 4 bo 3
+ 1: | 10 return
+ 2: | 1 Xss 4 || 1 return
+ 3: | 1 Tss 1 Xss 3 Tss 1 || 1 return
+ 4: | 1 Xss 4 || 1 return
+ 5: | 1 Tss 1 Xss 3 Tss 1 || 1 return
+ 6: | 1 Xss 4 || 1
+ 7: | 1 Tss 1 Xss 3 Tss 1 || 1
+ 8: | 1 Xss 4 || 1
+ 9: | 1 Tss 1 Xss 3 Tss 1 || 1
+10: | 1 Tss 1 || 1  - 4      | 1  Tss 1 || 1
+11: | 1 Tss 1 || 1  - 4      | 1  Tss 1 || 1
+12: bo 3 - 4 bo 3

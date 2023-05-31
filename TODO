@@ -14,3 +14,4 @@
   - !align-center
     - reset alignment to center
 - on normal direction lines, stitch colors e.g. Xss are not reversed, so they end up showing wrong; those need to be renumbered based on the prototype as well (near std::reverse)
+- !markers get confused around blanks, `cc` gets skipped before they have a chance to get positioned correctly
