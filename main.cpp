@@ -254,14 +254,14 @@ int main(int argc, char* argv[]) {
                                 auto NTH_TAKEN = [&](int pc, int taken) {
                                     printf("NTH_TAKEN: pc = %d taken = %d ", pc, taken);
                                     int rval = pc;
+                                    while(rval < dots[i-1].size() && dots[i-1][rval].skip) rval++;
                                     for(int j = 0; j < taken; ++j) {
                                         printf(" >> ?%d ?%zu :: ", rval, dots[i-1].size());
                                         if(rval >= dots[i-1].size()) break;
+                                        while(rval < dots[i-1].size() && dots[i-1][rval].skip) rval++;
                                         rval++;
                                         printf(" ?%d ", rval);
-                                        while(rval < dots[i-1].size() && dots[i-1][rval].skip) rval++;
                                     }
-                                    while(rval < dots[i-1].size() && dots[i-1][rval].skip) rval++;
                                     printf("    rval = %d\n", rval);
                                     return rval;
                                 };
