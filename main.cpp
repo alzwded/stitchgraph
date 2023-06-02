@@ -3,13 +3,14 @@
 #include <cstring>
 #include <algorithm>
 #include <numeric>
-#include <iostream>
 #include <fstream>
 #include <sstream>
 #include <string>
 
 #include "stitches.h"
 #include "draw.h"
+
+using namespace std::literals;
 
 struct Line
 {
@@ -110,22 +111,27 @@ Line parse_line(std::string const& sline)
     return rval;
 }
 
-int main(int argc, char* argv[]) {
-    // DEBUG
-#if 0
-    auto* H = initCanvas(100, 100);
-    drawLine(H, BLACK, 10, 10, 50, 90);
-    drawLine(H, BLACK, 10, 10, 90, 50);
-    writeCanvas(H, "__test.png");
-    return 0;
-#endif
-    // DEBUG
+void usage(const char* argv0)
+{
+    printf("Usage: %s file\n", argv0);
+    exit(2);
+}
+
+int main(int argc, char* argv[])
+{
     // TODO getopt for version and help
+
+    if(argc < 2) usage(argv[0]);
+
+    if(strcmp(argv[1], "-h") == 0) usage(argv[0]);
+
+    std::string fname = argv[1];
+    std::fstream fin(fname, std::ios::in);
 
     std::vector<std::string> slines;
     std::string sline;
-    while(std::cin.good()) {
-        std::getline(std::cin, sline);
+    while(fin.good()) {
+        std::getline(fin, sline);
         slines.push_back(sline);
     }
 
@@ -231,7 +237,7 @@ int main(int argc, char* argv[]) {
             }
             if(lines[i].stitches[j].markerAfter) {
                 printf("Marker after st %d\n", j);
-                drawMarker(hcanvas, EXCLAMATION, RED, dots[i][cc].x + 5, dots[i][cc].y);
+                drawMarker(hcanvas, EXCLAMATION, RED, dots[i][cc].x + 5 + 9 * (std::max(0, lines[i].stitches[j].puts - 1)), dots[i][cc].y);
             }
             for(int put = 0; put < lines[i].stitches[j].puts; ++put) {
                 if(!lines[i].stitches[j].blank) {
@@ -290,7 +296,9 @@ int main(int argc, char* argv[]) {
         } // for each stitch
     } // for each line
 
-    writeCanvas(hcanvas, "graph.png");
+    auto graphFname = fname + ".png"s;
+
+    writeCanvas(hcanvas, graphFname.c_str());
 
     return 0;
 }
