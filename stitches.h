@@ -114,6 +114,15 @@ static std::vector<Stitch> STITCHES {
             }
         },
         {
+            "kfb", "knit front and back", false,
+            1, 2,
+            ARROWDOWN, GREEN,
+            {
+                { 0, 0, BLACK },
+                { 0, 1, GREEN },
+            }
+        },
+        {
             "pu", "pick up", false,
             1, 1,
             DOT, RED,
@@ -154,7 +163,7 @@ static std::vector<Stitch> STITCHES {
         {
             "ml", "make 1 left", false,
             0, 1,
-            DOT, GREEN,
+            ARROWDOWN, GREEN,
             {
                 { -1, 0, BLACK }
             }
@@ -162,7 +171,7 @@ static std::vector<Stitch> STITCHES {
         {
             "M", "make 1", false,
             0, 1,
-            DOT, GREEN,
+            ARROWDOWN, GREEN,
             {
                 { 0, 0, BLACK }
             }
@@ -170,7 +179,7 @@ static std::vector<Stitch> STITCHES {
         {
             "mr", "make 1 right", false,
             0, 1,
-            DOT, GREEN,
+            ARROWDOWN, GREEN,
             {
                 { +1, 0, BLACK }
             }

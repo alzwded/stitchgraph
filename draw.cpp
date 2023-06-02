@@ -5,6 +5,7 @@
 #include <cassert>
 #include <cmath>
 #include <functional>
+#include <vector>
 #include <png.h>
 
 static char SUPPORTED[] = {
