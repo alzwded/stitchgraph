@@ -1,7 +1,7 @@
 #!/bin/sh
 
 fail() {
-    echo ${1-failed}
+    echo "${1-failed}"
     exit 2
 }
 
@@ -11,17 +11,19 @@ rm -f samples/README.md
 touch samples/README.md
 
 for i in samples/*.png ; do
-    ./stitchgraph ${i%.*} || fail $i
+    ./stitchgraph "${i%.*}" || fail "$i"
     ii=${i##*/}
     title="# ${ii%.*}"
-    title=$( echo $title | sed -e 's/_/\\_/g' )
-    echo "${title}" >> samples/README.md
-    echo >> samples/README.md
-    echo '```' >> samples/README.md
-    cat ${i%.*} >> samples/README.md
-    echo '```' >> samples/README.md
-    echo >> samples/README.md
-    alt_text=$( echo $i | sed -e 's/_/\\_/g' )
-    echo "![${alt_text}](${ii})" >> samples/README.md
-    echo >> samples/README.md
+    title=$( echo "$title" | sed -e 's/_/\\_/g' )
+    {
+        echo "${title}"
+        echo ''
+        echo '```'
+        cat "${i%.*}"
+        echo '```'
+        echo ''
+        alt_text=$( echo "$i" | sed -e 's/_/\\_/g' )
+        echo "![${alt_text}](${ii})"
+        echo ''
+    } >> samples/README.md
 done
