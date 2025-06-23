@@ -1,5 +1,5 @@
 CXXFLAGS ?= -g
-CXXFLAGS += -I. --std=c++17 ` pkg-config --cflags libpng `
+CXXFLAGS += -I. --std=c++20 ` pkg-config --cflags libpng `
 
 OBJS = main.o draw.o
 

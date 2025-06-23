@@ -34,10 +34,12 @@ struct Stitch
 
 static std::vector<Stitch> STITCHES {
     // BLUE vertical stitches are below
+#define BLANK_STITCH_INDEX 0
         {
             "-", "(blank)", true,
             1, 1,
         },
+#define BREAK_STITCH_INDEX 1
         {
             "/", "(break; unconnected to previous stitch)", true,
             0, 0,
