@@ -1,3 +1,4 @@
+#include <cmath>
 #include <cstdio>
 #include <cstdlib>
 #include <cstring>
@@ -15,6 +16,8 @@
 #define LOG(fmt, ...) fprintf(stderr, "%s@%s:%d: " fmt "\n", __func__, __FILE__, __LINE__ __VA_OPT__(,) __VA_ARGS__);
 
 using namespace std::literals;
+
+static MapEntry connectingStitch;
 
 struct Row
 {
@@ -135,6 +138,14 @@ struct Row
         return Iterator(it);
     }
 
+    // TODO just templatize this BS
+    size_t CountNormal() {
+        return std::accumulate(stitches.begin(), stitches.end(), size_t(0), [](size_t acc, decltype(stitches)::const_reference e) -> size_t {
+                //LOG("%d %d %s", e.puts, e.takes, e.blank ? "blank" : "");
+                return acc + e.puts * size_t(e.IsNormal());
+                });
+    }
+
     size_t CountMade() {
         return std::accumulate(stitches.begin(), stitches.end(), size_t(0), [](size_t acc, decltype(stitches)::const_reference e) -> size_t {
                 //LOG("%d %d %s", e.puts, e.takes, e.blank ? "blank" : "");
@@ -146,9 +157,14 @@ struct Row
                 return acc + e.takes;
                 });
     }
-    size_t CountAll() {
+    size_t CountStitchable() {
         return std::accumulate(stitches.begin(), stitches.end(), size_t(0), [](size_t acc, decltype(stitches)::const_reference e) -> size_t {
                 return acc + e.puts * size_t(e.IsCountable());
+                });
+    }
+    size_t CountRenderable() {
+        return std::accumulate(stitches.begin(), stitches.end(), size_t(0), [](size_t acc, decltype(stitches)::const_reference e) -> size_t {
+                return acc + e.puts * size_t(e.IsNormal() || e.IsSlipped() || e.IsBoundOff());
                 });
     }
 };
@@ -162,13 +178,16 @@ struct Dot
     struct LineTo {
         Dot* dotRef = nullptr;
         MapEntry* lineInfo = nullptr;
+        Dot* otherDotRef = nullptr;
     };
 
     int x = 0, y = 0; // canvas coordinates
     bool skip = false;
     Stitch* stitchRef = nullptr; // which stitch are we referencing (for DOT, or if it's blank or whatnot)
     std::list<LineTo> lines; // where do we draw rows to (prev on row, stitches below)
+    std::list<Dot*> connectedTo; // for weight calculation
     Dot* dotRef = nullptr; // this stitch was slipped up / was a short row, so we reference a dot faaar below
+    bool disconnected = false;
 };
 
 Row parse_row(std::string const& insline)
@@ -250,7 +269,6 @@ Row parse_row(std::string const& insline)
         // expect end of line instructions
         } else if(s == "turn") {
             LOG("...turn");
-            rval.reversed = true;
             rval.turn = true;
             if(marker) {
                 LOG("...adding marker after");
@@ -382,11 +400,9 @@ int main(int argc, char* argv[])
         ll.srcLine = sourceLineNumber;
         LOG("This is row %d, on source line %d", ll.number, ll.srcLine);
         rowNumber++;
-        if(ll.reversed) {
-            ll.reversed = reversed;
+        ll.reversed = reversed;
+        if(ll.turn) {
             reversed = !reversed;
-        } else {
-            ll.reversed = reversed;
         }
         sourceLineNumber++;
         LOG("Row's direction is %s", ll.reversed ? "left-to-right" : "right-to-left");
@@ -409,7 +425,7 @@ int main(int argc, char* argv[])
 
         rows.push_back(ll);
         previousLineLength = thisLen;
-        if(thisLen > longest) longest = thisLen;
+        if(ll.CountRenderable() > longest) longest = ll.CountRenderable();
     }
 
     LOG("Read %zd rows of stitching instructions", rows.size());
@@ -422,8 +438,9 @@ int main(int argc, char* argv[])
 
     // add blanks where we were short
     reversed = true; // reset reversed
-    previousLineLength = rows[0].CountAll();
+    previousLineLength = rows[0].CountStitchable();
     for(int i = 1; i < rows.size(); ++i) {
+        LOG("Prev %zd current %zd", previousLineLength, rows[i].CountTaken());
         if(rows[i].CountTaken() > previousLineLength)
         {
             LOG("Row \"%d\" on source line %d is too long! (takes %zd, previous row was %zd/%zd)",
@@ -432,8 +449,9 @@ int main(int argc, char* argv[])
                     rows[i].CountTaken(),
                     rows[i-1].CountMade(),
                     previousLineLength);
+            abort();
         }
-        int delta = -rows[i].CountTaken() + rows[i - 1].CountAll();
+        int delta = -rows[i].CountTaken() + rows[i - 1].CountStitchable();
         if(delta) {
             LOG("Row %d is short, need to add %d stitches", rows[i].number, delta);
             bool atEnd = true;
@@ -469,50 +487,363 @@ int main(int argc, char* argv[])
                 }
             }
         }
-        previousLineLength = rows[i].CountAll();
+        previousLineLength = rows[i].CountStitchable();
     }
 
     LOG("Instructions (simplified):");
-    LOG("   +       increase area");
-    LOG("   v       decrease area");
+    LOG("   + &     increase area");
+    LOG("   v .     decrease area");
     LOG("   -       slipped area");
     LOG("   =       bind off area");
     LOG("   |       normal area");
     for(int i = 0; i < rows.size(); ++i)
     {
         auto& ll = rows[i];
-        printf("%3d: %c   ", ll.number, ll.reversed ? '>' : ' ');
+        fprintf(stderr, "%3d: %c   ", ll.number, ll.reversed ? '>' : ' ');
         auto it = ll.First(!ll.reversed);
         while(it) {
             if(it->takes > it->puts) {
                 int i = 0;
-                for(; i < it->puts; ++i) printf("v ");
-                for(; i < it->takes; ++i) printf("  ");
+                for(; i < it->puts; ++i)  fprintf(stderr, "v ");
+                for(; i < it->takes; ++i) fprintf(stderr, ". ");
             }
             else if(it->takes < it->puts) {
                 int i = 0;
-                for(; i < it->takes; ++i) printf("| ");
-                for(; i < it->puts; ++i) printf("+ ");
+                for(; i < it->takes; ++i) fprintf(stderr, "& ");
+                for(; i < it->puts; ++i)  fprintf(stderr, "+ ");
             }
-            else if(it->IsSlipped()) { for(int i = 0; i < it->takes; ++i) printf("- "); }
-            else if(it->map.empty()) { for(int i = 0; i < it->takes; ++i) printf("= "); }
+            else if(it->IsSlipped()) { for(int i = 0; i < it->takes; ++i) fprintf(stderr, "- "); }
+            else if(it->IsBoundOff()) { for(int i = 0; i < it->takes; ++i) fprintf(stderr, "= "); }
             else {
-                for(int i = 0; i < it->puts; ++i) printf("| ");
+                for(int i = 0; i < it->puts; ++i) fprintf(stderr, "| ");
             }
             ++it;
         }
-        printf("\t%c\t\t(@%d)\n", ll.reversed ? ' ' : '<', ll.srcLine);
+        fprintf(stderr, "\t%c\t\t(@%d)\n", ll.reversed ? ' ' : '<', ll.srcLine);
     }
     LOG("");
-    LOG("Populating canvas");
-    exit(42);
+
+    LOG("Populating graph");
+    // iterate over row stitches starting with logical coordinates (0,0)
+    // for each new produced stitch, increase X coord by incr*9
+    // on new row, keep X, increase Y by 9; but check if we have any P stitches we need to pull up; add references on new row, and continue where left off
+    // after than, apply forces and shift rows from [1..N)
+    // after that, compute min & max, and move entire work such that min is (27,0)
+    int xcoord = 0, ycoord = 0, dxcoord = 1;
+    // preallocate memory because we need to keep pointers around
+    std::vector<std::vector<Dot>> dots(rows.size(), std::vector<Dot>(longest));
+    std::vector<int> numDots(rows.size());
+    // iterator on previous row, for takes
+    int previ = 0, previncr = +1;
+    for(int rowy = 0; rowy < rows.size(); ++rowy)
+    {
+        LOG("Populating row %d", rowy);
+        // current row
+        auto& row = rows[rowy];
+        int curri = 0;
+        // create row of dots
+        auto& rowdots = dots[rowy];
+        // keep track of if we've built a first stitch on this row yet
+        bool first = true;
+        auto it = row.First(false);
+        LOG("Direction: %s", row.reversed ? "left-to-right" : "right-to-left");
+        while(it) {
+            LOG("Stitching at %d (%d x %d) which is a %s", curri, xcoord, ycoord, it->key);
+            LOG("        it at=%d incr=%d", it.at, it.incr);
+            if(it->IsNormal() || it->IsBoundOff()) {
+                for(int ii = 0; ii < it->puts; ++ii) {
+                    auto& dot = rowdots[curri++];
+                    dot.x = xcoord;
+                    dot.y = ycoord;
+                    dot.skip = false;
+                    dot.stitchRef = &*it;
+                    dot.dotRef = &dot;
+                    // construct new stitches
+                    if(!first) {
+                        // connect to previous stitch
+                        if(ii == 0 && (it - 1)->IsNormal() || (it - 1)->IsBoundOff()
+                                || ii > 0)
+                        {
+                            auto& prevDot = rowdots[curri - 2 - ii];
+                            dot.lines.emplace_back();
+                            dot.lines.back().dotRef = &prevDot;
+                            dot.lines.back().lineInfo = &connectingStitch;
+                        }
+                    } else {
+                        first = false;
+                        dot.disconnected = true;
+                    }
+
+                    // update xcoord
+                    xcoord = xcoord + 9 * dxcoord;
+                }
+
+                // take from previous row
+                // translate src and dst, keeping direction in mind
+                if(it->takes > 9 ) {
+                    LOG("Code only supports taking up to 9 stitches, asked to take %d", it->takes);
+                    abort();
+                }
+                if(it->puts > 9 ) {
+                    LOG("Code only supports putting up to 9 stitches, asked to put %d", it->puts);
+                    abort();
+                }
+                int lutme[9];
+                int lutprev[9] = { previ - previncr, previ };
+                if(rowy > 0) {
+                    while(lutprev[0] >= 0 && lutprev[0] < numDots[rowy - 1] && !dots[rowy - 1][lutprev[0]].stitchRef->IsCountable()) { lutprev[0] = lutprev[0] + previncr; lutprev[1] = lutprev[0] + previncr; }
+                    while(lutprev[1] >= 0 && lutprev[1] < numDots[rowy - 1] && !dots[rowy - 1][lutprev[1]].stitchRef->IsCountable()) lutprev[1] = lutprev[1] + previncr;
+                }
+                // for the previous row, we advance previ in our iterator's direction
+                for(int i = 0; i < it->takes; ++i) {
+                    // skip boundoffs or skips or whatnot
+                    while(previ > 0 && previ < numDots[rowy - 1] - 1 && !dots[rowy - 1][previ].stitchRef->IsCountable()) previ = previ + previncr;
+                    lutprev[i] = previ;
+                    previ = previ + previncr;
+                }
+                if(it->takes > 0) {
+                    lutprev[it->takes] = lutprev[it->takes - 1] + previncr;
+                    if(rowy > 0) {
+                        while(lutprev[it->takes] >= 0 && lutprev[it->takes] < numDots[rowy - 1] && !dots[rowy - 1][lutprev[it->takes]].stitchRef->IsCountable()) { lutprev[it->takes] = lutprev[it->takes] + previncr;}
+                    }
+                }
+                // for the current row, we've just added the last "put" stitch, so take off
+                // the last it->puts dots
+                for(int i = 0; i < it->puts; ++i) {
+                    lutme[i] = curri - it->puts + i;
+                }
+
+                // construct lines to previous row
+                for(auto&& me : it->map) {
+                    auto& dstDot = rowdots[lutme[me.dst]];
+                    dstDot.lines.emplace_back();
+                    dstDot.lines.back().lineInfo = &me;
+                    if(me.src != MapEntry::INBETWEEN) {
+                        dstDot.lines.back().dotRef = dots[rowy - 1][lutprev[me.src]].dotRef;
+                    } else {
+                        LOG("INBETWEEN");
+                        dstDot.lines.back().dotRef = dots[rowy - 1][lutprev[0]].dotRef;
+                        dstDot.lines.back().otherDotRef = dots[rowy - 1][lutprev[1]].dotRef;
+                    }
+                    LOG("Stitching (%d,%d) -> (%d,%d)", rowy, lutme[me.dst], rowy-1, lutprev[me.src]);
+                }
+
+                // connect to previous row
+                for(int i = 0; i < it->puts; ++i) {
+                    auto& dot = rowdots[lutme[i]];
+                    for(int j = 0; j < it->takes; ++j) {
+                        dot.connectedTo.push_back(dots[rowy - 1][lutprev[j]].dotRef);
+                        LOG("Linking (%d,%d) -> (%d,%d)", rowy, lutme[i], rowy-1, lutprev[j]);
+                    }
+                }
+            } else if(it->IsSlipped()) {
+                // take from previous row
+                for(int i = 0; i < it->takes; ++i) {
+                    auto& dot = rowdots[curri++];
+                    dot.x = xcoord;
+                    dot.y = ycoord;
+                    dot.skip = true;
+                    dot.stitchRef = &*it;
+                    dot.disconnected = true;
+                    if(rowy > 0) {
+                        // skip bindoffs or skips
+                        while(!dots[rowy - 1][previ].stitchRef->IsCountable()) previ = previ + previncr;
+                        dot.dotRef = dots[rowy - 1][previ].dotRef;
+                        previ = previ + previncr;
+                    } else {
+                        dot.dotRef = &dot;
+                    }
+
+                    // update xcoord
+                    xcoord = xcoord + 9 * dxcoord;
+                }
+            } else if(it->IsBroken()) {
+                LOG("Breaks are not implemented! Dealing with row %d @ %d", row.number, row.srcLine);
+                abort();
+                // dot.disconnected = true;
+            }
+            ++it;
+        }
+
+        numDots[rowy] = curri;
+
+        // update previous row iterator;
+        if(rowy < rows.size() - 1) {
+            if(rows[rowy].turn) {
+                previ = curri - 1;
+                previncr = -1;
+                // skip bindoffs
+                while(previ >= 0 && !rowdots[previ].stitchRef->IsCountable()) --previ;
+                xcoord = dots[rowy][numDots[rowy] - 1].x;
+                dxcoord = -dxcoord;
+            } else {
+                xcoord = 0;
+                previ = 0;
+                previncr = +1;
+                // skip bindoffs
+                while(previ < curri && !rowdots[previ].stitchRef->IsCountable()) ++previ;
+            }
+            LOG("previ reset to %d %+d; xcoord is %d", previ,previncr, xcoord);
+            LOG("next row direction: %s", rows[rowy + 1].reversed ? "left-to-right" : "right-to-left");
+        }
+
+        // move to next row
+        ycoord += 9;
+    }
+    LOG("");
+    LOG("dots = ");
+    for(int rowy = 0; rowy < dots.size(); ++rowy) {
+        for(int rowx = 0; rowx < numDots[rowy]; ++rowx) {
+            auto& dot = dots[rowy][rowx];
+            fprintf(stderr, "(%3d,%3d,%3d,%d) ", dot.x, dot.y, int(dot.lines.size()), dot.stitchRef->special);
+        }
+        fprintf(stderr, "\n");
+    }
+
+    LOG("Applying forces");
+    for(int rowy = 1; rowy < dots.size(); ++rowy) {
+        // TODO group continuous chunks, c.f. BREAK
+
+        float force = 0.f;
+        int denominator = 0;
+        for(int rowx = 0; rowx < numDots[rowy]; ++rowx) {
+            if(dots[rowy][rowx].skip) {
+                continue;
+            }
+            float lforce = 0.f;
+            int ldenom = 0;
+            auto& self = dots[rowy][rowx];
+            float myX = self.x;
+            auto lineit = self.connectedTo.begin();
+            for(; lineit != self.connectedTo.end(); ++lineit)
+            {
+                //fprintf(stderr, "%d... ", (*lineit)->x);
+                lforce += (*lineit)->x;
+                ldenom += 1;
+            }
+            if(ldenom == 0) continue;
+            force += lforce / ldenom - myX;
+            denominator += 1.f;
+            //fprintf(stderr, "%f ", lforce/ldenom - myX);
+        }
+        if(denominator == 0) continue;
+        force = force / denominator;
+        //fprintf(stderr, "\n");
+        int adj = int(round(force));
+        LOG("Force on line %d is %f ~=%d", rowy, force, adj);
+        for(int rowx = 0; rowx < numDots[rowy]; ++rowx) {
+            //LOG("%d -> %d", dots[rowy][rowx].x, dots[rowy][rowx].x + adj);
+            dots[rowy][rowx].x += adj;
+        }
+    }
+    LOG("dots = ");
+    for(int rowy = 0; rowy < dots.size(); ++rowy) {
+        for(int rowx = 0; rowx < numDots[rowy]; ++rowx) {
+            auto& dot = dots[rowy][rowx];
+            fprintf(stderr, "(%3d,%3d,%3d,%d) ", dot.x, dot.y, int(dot.lines.size()), dot.stitchRef->special);
+        }
+        fprintf(stderr, "\n");
+    }
+    LOG("");
+
+    LOG("Adjusting coordinates");
+    int minx = 32767, maxx = -32768;
+    for(int rowy = 0; rowy < dots.size(); ++rowy) {
+        for(int rowx = 0; rowx < numDots[rowy]; ++rowx) {
+            auto& dot = dots[rowy][rowx];
+            if(dot.x < minx) minx = dot.x;
+            if(dot.x > maxx) maxx = dot.x;
+        }
+    }
+    LOG("Coordinates go from %d to %d", minx, maxx);
+    int canvasHeight = (rows.size() + 2) * 9;
+    for(int rowy = 0; rowy < dots.size(); ++rowy) {
+        for(int rowx = 0; rowx < dots[rowy].size(); ++rowx) {
+            auto& dot = dots[rowy][rowx];
+            dot.x = dot.x - minx + 3 * 9 /*row number*/ + 3 /* whitespace padding */;
+            dot.y = canvasHeight - 9 - dot.y;
+        }
+    }
+    LOG("dots = ");
+    for(int rowy = 0; rowy < dots.size(); ++rowy) {
+        for(int rowx = 0; rowx < numDots[rowy]; ++rowx) {
+            auto& dot = dots[rowy][rowx];
+            fprintf(stderr, "(%3d,%3d,%3d,%d) ", dot.x, dot.y, int(dot.lines.size()), dot.stitchRef->special);
+        }
+        fprintf(stderr, "\n");
+    }
+    int dotsExtent = maxx - minx;
+
+    int canvasWidth = 3 * 9 /* 3 digits row number, reversed direction */
+                    + 3 /* whitespace padding */
+                    + dotsExtent /* longest row */ 
+                    + 3 /* whitespace padding */
+                    + 3 * 9 /* 3 digits row number, forward direction */
+                    + 5 * 9 /* space for stitch count, 2 parens, 3 digits */
+                    ;
+    LOG("Populating canvas %d x %d", canvasWidth, canvasHeight);
+    auto hcanvas = initCanvas(canvasWidth, canvasHeight);
+
+    for(int rowy = 0; rowy < dots.size(); ++rowy) {
+        // row counter
+        std::string rown = std::to_string(rows[rowy].number);
+        for(int z = 0; rows[rowy].number > 0 && z < rown.size(); ++z) {
+            int x = 0;
+            if(!rows[rowy].reversed) {
+                x = (rown.size() - 1 - z) * 9;
+                x += dotsExtent + 3 * 9 + 3 + 3;
+            } else {
+                x = (2 - z) * 9;
+            }
+            drawGlyph(hcanvas, rown[rown.size() - 1 - z], BLACK, x, (2 + rows.size() - 1 - rowy) * 9 - 3);
+        }
+        // stitch count
+        std::string stcnt = std::to_string(rows[rowy].CountNormal());
+        drawGlyph(hcanvas, '(', BLACK, 3 * 9 + 3 + dotsExtent + 3 + 3 * 9 + 9 + (2 - stcnt.size()) * 9, (2 + rows.size() - 1 - rowy) * 9 - 3);
+        for(int z = 0; z < stcnt.size(); ++z) {
+            int x = 0;
+            x = 3 * 9 + 3 + dotsExtent + 3 + 3 * 9 + 9 + 9 + z * 9 + (2 - stcnt.size()) * 9;
+            drawGlyph(hcanvas, stcnt[z], BLACK, x, (2 + rows.size() - 1 - rowy) * 9 - 3);
+        }
+        drawGlyph(hcanvas, ')', BLACK, 3 * 9 + 3 + dotsExtent + 3 + 3 * 9 + 4 * 9, (2 + rows.size() - 1 - rowy) * 9 - 3);
+
+        // stitches proper
+        for(int rowx = 0; rowx < dots[rowy].size(); ++rowx) {
+            auto& dot = dots[rowy][rowx];
+            // stitch knot itself
+            if(!dot.skip && dot.stitchRef && dot.stitchRef->marker != NONE) {
+                drawMarker(hcanvas, dot.stitchRef->marker, dot.stitchRef->color, dot.x, dot.y);
+            }
+            // connections
+            for(auto&& lspec : dot.lines) {
+                int tx = lspec.dotRef->x;
+                int ty = lspec.dotRef->y;
+                if(lspec.otherDotRef != nullptr) {
+                    tx = (lspec.dotRef->x + lspec.otherDotRef->x) / 2;
+                    ty = (lspec.dotRef->y + lspec.otherDotRef->y) / 2;
+                }
+                drawLine(hcanvas, lspec.lineInfo->color, dot.x, dot.y, tx, ty);
+                if(lspec.lineInfo->marker != NONE) {
+                    drawMarker(hcanvas, lspec.lineInfo->marker, lspec.lineInfo->color, (dot.x + tx) / 2, (dot.y + ty) / 2);
+                }
+            }
+        }
+    }
+    
+    // write out bitmap
+    auto graphFname = fname + ".png"s;
+    LOG("Writing %s", graphFname.c_str());
+    writeCanvas(hcanvas, graphFname.c_str());
+
+    // done-dee-done.
+    exit(0);
 
 
     // TODO new code above this line, purge remaining dead code
-    auto hcanvas = initCanvas(3 * 9 + longest * 9 + 3 * 9 + 5 * 9, (rows.size() + 3) * 9);
+    //auto hcanvas = initCanvas(3 * 9 + longest * 9 + 3 * 9 + 5 * 9, (rows.size() + 3) * 9);
 
     // first pass -- determine where dots sit, because we need to stitch neighbours together
-    std::vector<std::vector<Dot>> dots;
+    //std::vector<std::vector<Dot>> dots;
     for(int i = 0; i < rows.size(); ++i) {
         dots.emplace_back();
 
@@ -639,10 +970,6 @@ int main(int argc, char* argv[])
             printf("pc post = %d\n", pc);
         } // for each stitch
     } // for each line
-
-    auto graphFname = fname + ".png"s;
-
-    writeCanvas(hcanvas, graphFname.c_str());
 
     return 0;
 }

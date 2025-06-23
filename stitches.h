@@ -9,8 +9,8 @@ struct MapEntry
     enum SPECIAL_SRC_VALUES {
         INBETWEEN = -1
     };
-    int src = 0;
-    int dst = 0;
+    int src = 0; // stitch on row below
+    int dst = 0; // newly put stitch
     Color color = BLACK;
     Marker marker = NONE;
 };
@@ -20,10 +20,10 @@ struct Stitch
     const char* key = "";
     const char* description = "";
     enum SPECIAL {
-        N = 0,
-        P = 1,
-        BINDOFF = 2,
-        BREAK = 3,
+        N = 0, // this is a normal stitch
+        P = 1, // this is a padding stitch (slipped or short rows)
+        BINDOFF = 2, // this is a bind off (or skip), no longer countable
+        BREAK = 3, // this is a separate section / skein
     } special = N;
     int takes = 0;
     int puts = 0;
@@ -33,8 +33,8 @@ struct Stitch
     bool markerBefore = false;
     bool markerAfter = false;
 
+    bool IsNormal() const { return special == N; }
     bool IsSlipped() const { return special == P; }
-    bool IsBorken() const { return special == BREAK; }
     bool IsBoundOff() const { return special == BINDOFF; }
     bool IsBroken() const { return special == BREAK; }
 
@@ -49,15 +49,21 @@ static std::vector<Stitch> STITCHES {
             "-", "(blank)", Stitch::P,
             1, 1,
         },
+#if 0
+            // TODO support breaking (for vertical holes, split back, etc)
+            // however, this requires some shenanigans in the layouting code
+            // as separate sections don't have a stitch between them to pull them,
+            // so it requires those sections to be grouped when resolving forces...
 #define BREAK_STITCH_INDEX 1
         {
             "/", "(break; unconnected to previous stitch)", Stitch::BREAK,
             0, 0,
         },
+#endif
         {
             "pu", "pick up / slip", Stitch::N,
             1, 1,
-            NONE, RED,
+            CIRCLE, RED,
             {
                 { 0, 0, RED },
             }
@@ -71,10 +77,15 @@ static std::vector<Stitch> STITCHES {
         {
             "bo", "bind off", Stitch::BINDOFF,
             1, 1,
+            VBAR, RED,
+            {
+                { 0, 0, BLUE }
+            }
         },
         {
             "sk", "skip", Stitch::BINDOFF,
             1, 0,
+            VBAR, BLUE,
         },
         {
             "k", "knit", Stitch::N,
@@ -146,12 +157,11 @@ static std::vector<Stitch> STITCHES {
             }
         },
         {
-            "M", "make one (KFB)", Stitch::N,
-            1, 2,
+            "M", "make one", Stitch::N,
+            0, 1,
             ARROWDOWN, GREEN,
             {
-                { 0, 0, GREEN },
-                { 0, 1, BLACK },
+                { MapEntry::INBETWEEN , 0, GREEN },
             }
         },
         {

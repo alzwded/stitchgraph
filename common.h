@@ -10,7 +10,7 @@ enum Color
 };
 
 enum Marker {
-    NONE = 1,
+    NONE = -1,
     DOT = 0,
     CIRCLE = 1,
     SQUIGGLE = 2,
