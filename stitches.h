@@ -19,7 +19,12 @@ struct Stitch
 {
     const char* key = "";
     const char* description = "";
-    bool blank = true;
+    enum SPECIAL {
+        N = 0,
+        P = 1,
+        BINDOFF = 2,
+        BREAK = 3,
+    } special = N;
     int takes = 0;
     int puts = 0;
     Marker marker = DOT;
@@ -28,24 +33,29 @@ struct Stitch
     bool markerBefore = false;
     bool markerAfter = false;
 
-    bool IsSlipped() { return strcmp(key, "-") == 0; }
-    bool IsBroken() { return strcmp(key, "/") == 0; }
+    bool IsSlipped() const { return special == P; }
+    bool IsBorken() const { return special == BREAK; }
+    bool IsBoundOff() const { return special == BINDOFF; }
+    bool IsBroken() const { return special == BREAK; }
+
+    bool IsMade() const { return special == N || special == BREAK; }
+    bool IsCountable() const { return special == N || special == P; }
 };
 
 static std::vector<Stitch> STITCHES {
     // BLUE vertical stitches are below
 #define BLANK_STITCH_INDEX 0
         {
-            "-", "(blank)", true,
+            "-", "(blank)", Stitch::P,
             1, 1,
         },
 #define BREAK_STITCH_INDEX 1
         {
-            "/", "(break; unconnected to previous stitch)", true,
+            "/", "(break; unconnected to previous stitch)", Stitch::BREAK,
             0, 0,
         },
         {
-            "pu", "pick up / slip", false,
+            "pu", "pick up / slip", Stitch::N,
             1, 1,
             NONE, RED,
             {
@@ -53,21 +63,21 @@ static std::vector<Stitch> STITCHES {
             }
         },
         {
-            "co", "cast on", false,
+            "co", "cast on", Stitch::N,
             0, 1,
             DOT, GREEN,
             {}
         },
         {
-            "bo", "bind off", true,
+            "bo", "bind off", Stitch::BINDOFF,
             1, 1,
         },
         {
-            "sk", "skip", true,
+            "sk", "skip", Stitch::BINDOFF,
             1, 0,
         },
         {
-            "k", "knit", false,
+            "k", "knit", Stitch::N,
             1, 1,
             DOT, BLACK,
             { 
@@ -75,7 +85,7 @@ static std::vector<Stitch> STITCHES {
             }
         },
         {
-            "p", "purl", false,
+            "p", "purl", Stitch::N,
             1, 1,
             SQUIGGLE, BLUE,
             {
@@ -83,7 +93,7 @@ static std::vector<Stitch> STITCHES {
             }
         },
         {
-            "k2tog", "knit two together", false,
+            "k2tog", "knit two together", Stitch::N,
             2, 1,
             ARROWUP, RED,
             {
@@ -92,7 +102,7 @@ static std::vector<Stitch> STITCHES {
             }
         },
         {
-            "SSK", "slip slip knit", false,
+            "SSK", "slip slip knit", Stitch::N,
             2, 1,
             ARROWUP, RED,
             {
@@ -101,7 +111,7 @@ static std::vector<Stitch> STITCHES {
             }
         },
         {
-            "p2tog", "purl two together", false,
+            "p2tog", "purl two together", Stitch::N,
             2, 1,
             ARROWUP, RED,
             {
@@ -110,7 +120,7 @@ static std::vector<Stitch> STITCHES {
             }
         },
         {
-            "SSP", "slip slip purl", false,
+            "SSP", "slip slip purl", Stitch::N,
             2, 1,
             ARROWUP, RED,
             {
@@ -119,7 +129,7 @@ static std::vector<Stitch> STITCHES {
             }
         },
         {
-            "Tss", "tunisian simple stitch", false,
+            "Tss", "tunisian simple stitch", Stitch::N,
             1, 1,
             DOT, BLACK,
             {
@@ -127,7 +137,7 @@ static std::vector<Stitch> STITCHES {
             }
         },
         {
-            "kfb", "knit front and back", false,
+            "kfb", "knit front and back", Stitch::N,
             1, 2,
             ARROWDOWN, GREEN,
             {
@@ -136,7 +146,7 @@ static std::vector<Stitch> STITCHES {
             }
         },
         {
-            "M", "make one (KFB)", false,
+            "M", "make one (KFB)", Stitch::N,
             1, 2,
             ARROWDOWN, GREEN,
             {
@@ -145,7 +155,7 @@ static std::vector<Stitch> STITCHES {
             }
         },
         {
-            "|", "Tunisian pick up", false,
+            "|", "Tunisian pick up", Stitch::N,
             1, 1,
             DOT, RED,
             {
@@ -153,7 +163,7 @@ static std::vector<Stitch> STITCHES {
             }
         },
         {
-            "||", "Tunisian end of row", false,
+            "||", "Tunisian end of row", Stitch::N,
             1, 1,
             DOT, RED,
             {
@@ -161,7 +171,7 @@ static std::vector<Stitch> STITCHES {
             }
         },
         {
-            "Xss", "crossed tunisian simple stitch", false,
+            "Xss", "crossed tunisian simple stitch", Stitch::N,
             2, 2,
             DOT, BLUE,
             {
@@ -171,7 +181,7 @@ static std::vector<Stitch> STITCHES {
         },
         /*
         {
-            "Tfs", "Tunisian full stitch", false,
+            "Tfs", "Tunisian full stitch", Stitch::N,
             1, 1,
             DOT, BLACK,
             {
@@ -180,7 +190,7 @@ static std::vector<Stitch> STITCHES {
         },
         */
         {
-            "Tfs", "Tunisian full stitch", false,
+            "Tfs", "Tunisian full stitch", Stitch::N,
             1, 1,
             DOT, BLACK,
             {
@@ -188,12 +198,12 @@ static std::vector<Stitch> STITCHES {
             }
         },
         {
-            "yo", "yarn over", false,
+            "yo", "yarn over", Stitch::N,
             0, 1,
             CIRCLE, GREEN,
         },
         {
-            "ml", "make 1 left", false,
+            "ml", "make 1 left", Stitch::N,
             0, 1,
             ARROWLEFT, GREEN,
             {
@@ -201,7 +211,7 @@ static std::vector<Stitch> STITCHES {
             }
         },
         {
-            "ma", "make 1 air", false,
+            "ma", "make 1 air", Stitch::N,
             0, 1,
             ARROWDOWN, GREEN,
             {
@@ -209,7 +219,7 @@ static std::vector<Stitch> STITCHES {
             }
         },
         {
-            "mr", "make 1 right", false,
+            "mr", "make 1 right", Stitch::N,
             0, 1,
             ARROWRIGHT, GREEN,
             {
@@ -217,7 +227,7 @@ static std::vector<Stitch> STITCHES {
             }
         },
         {
-            "CDD", "central double decrease", false,
+            "CDD", "central double decrease", Stitch::N,
             3, 1,
             ARROWUP, RED,
             {
@@ -227,7 +237,7 @@ static std::vector<Stitch> STITCHES {
             }
         },
         {
-            "SK2P", "sl k2tog psso", false,
+            "SK2P", "sl k2tog psso", Stitch::N,
             3, 1,
             ARROWUP, RED,
             {
@@ -237,7 +247,7 @@ static std::vector<Stitch> STITCHES {
             }
         },
         {
-            "s", "generic stitch", false,
+            "s", "generic stitch", Stitch::N,
             1, 1,
             DOT, BLACK,
             {
@@ -245,7 +255,7 @@ static std::vector<Stitch> STITCHES {
             }
         },
         {
-            "2s", "generic stitch twice in same loop", false,
+            "2s", "generic stitch twice in same loop", Stitch::N,
             1, 2,
             ARROWDOWN, GREEN,
             {
@@ -254,7 +264,7 @@ static std::vector<Stitch> STITCHES {
             }
         },
         {
-            "3s", "generic stitch thrice in same loop", false,
+            "3s", "generic stitch thrice in same loop", Stitch::N,
             1, 3,
             ARROWDOWN, GREEN,
             {
@@ -264,7 +274,7 @@ static std::vector<Stitch> STITCHES {
             }
         },
         {
-            "4s", "generic stitch 4 in same loop", false,
+            "4s", "generic stitch 4 in same loop", Stitch::N,
             1, 4,
             ARROWDOWN, GREEN,
             {
@@ -275,7 +285,7 @@ static std::vector<Stitch> STITCHES {
             }
         },
         {
-            "5s", "generic stitch 5 in same loop", false,
+            "5s", "generic stitch 5 in same loop", Stitch::N,
             1, 5,
             ARROWDOWN, GREEN,
             {
@@ -287,7 +297,7 @@ static std::vector<Stitch> STITCHES {
             }
         },
         {
-            "6s", "generic stitch 6 in same loop", false,
+            "6s", "generic stitch 6 in same loop", Stitch::N,
             1, 6,
             ARROWDOWN, GREEN,
             {
@@ -300,7 +310,7 @@ static std::vector<Stitch> STITCHES {
             }
         },
         {
-            "7s", "generic stitch 7 in same loop", false,
+            "7s", "generic stitch 7 in same loop", Stitch::N,
             1, 7,
             ARROWDOWN, GREEN,
             {
@@ -314,7 +324,7 @@ static std::vector<Stitch> STITCHES {
             }
         },
         {
-            "8s", "generic stitch 8 in same loop", false,
+            "8s", "generic stitch 8 in same loop", Stitch::N,
             1, 8,
             ARROWDOWN, GREEN,
             {
@@ -329,7 +339,7 @@ static std::vector<Stitch> STITCHES {
             }
         },
         {
-            "s2tog", "generic stitch two together", false,
+            "s2tog", "generic stitch two together", Stitch::N,
             2, 1,
             ARROWUP, RED,
             {
@@ -338,7 +348,7 @@ static std::vector<Stitch> STITCHES {
             }
         },
         {
-            "s3tog", "generic stitch three together", false,
+            "s3tog", "generic stitch three together", Stitch::N,
             3, 1,
             ARROWUP, RED,
             {
@@ -348,12 +358,12 @@ static std::vector<Stitch> STITCHES {
             }
         },
         {
-            "ch", "chain", false,
+            "ch", "chain", Stitch::N,
             0, 1,
             CIRCLE, GREEN,
         },
         {
-            "dc", "double crochet", false,
+            "dc", "double crochet", Stitch::N,
             1, 1,
             DOT, BLACK,
             {
@@ -361,7 +371,7 @@ static std::vector<Stitch> STITCHES {
             }
         },
         {
-            "tc", "triple crochet", false,
+            "tc", "triple crochet", Stitch::N,
             1, 1,
             DOT, BLACK,
             {
@@ -369,7 +379,7 @@ static std::vector<Stitch> STITCHES {
             }
         },
         {
-            "qc", "quadruple crochet", false,
+            "qc", "quadruple crochet", Stitch::N,
             1, 1,
             DOT, BLACK,
             {
@@ -377,7 +387,7 @@ static std::vector<Stitch> STITCHES {
             }
         },
         {
-            "bb", "bobble", false,
+            "bb", "bobble", Stitch::N,
             1, 1,
             DOT, RED,
             {
@@ -385,7 +395,7 @@ static std::vector<Stitch> STITCHES {
             }
         },
         {
-            "c2f", "cable 2 front", false,
+            "c2f", "cable 2 front", Stitch::N,
             3, 3,
             DOT, BLACK,
             {
@@ -395,7 +405,7 @@ static std::vector<Stitch> STITCHES {
             }
         },
         {
-            "c2b", "cable 2 back", false,
+            "c2b", "cable 2 back", Stitch::N,
             3, 3,
             DOT, BLUE,
             {
@@ -405,7 +415,7 @@ static std::vector<Stitch> STITCHES {
             }
         },
         {
-            "c3b", "cable 3 back", false,
+            "c3b", "cable 3 back", Stitch::N,
             6, 6,
             DOT, BLUE,
             {
@@ -418,7 +428,7 @@ static std::vector<Stitch> STITCHES {
             }
         },
         {
-            "c3f", "cable 3 front", false,
+            "c3f", "cable 3 front", Stitch::N,
             6, 6,
             DOT, BLACK,
             {
@@ -431,7 +441,7 @@ static std::vector<Stitch> STITCHES {
             }
         },
         {
-            "c3b", "cable 3 back", false,
+            "c3b", "cable 3 back", Stitch::N,
             6, 6,
             DOT, BLUE,
             {

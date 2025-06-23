@@ -138,7 +138,7 @@ struct Row
     size_t CountMade() {
         return std::accumulate(stitches.begin(), stitches.end(), size_t(0), [](size_t acc, decltype(stitches)::const_reference e) -> size_t {
                 //LOG("%d %d %s", e.puts, e.takes, e.blank ? "blank" : "");
-                return acc + e.puts * size_t(!e.blank);
+                return acc + e.puts * size_t(e.IsMade());
                 });
     }
     size_t CountTaken() {
@@ -148,7 +148,7 @@ struct Row
     }
     size_t CountAll() {
         return std::accumulate(stitches.begin(), stitches.end(), size_t(0), [](size_t acc, decltype(stitches)::const_reference e) -> size_t {
-                return acc + e.puts;
+                return acc + e.puts * size_t(e.IsCountable());
                 });
     }
 };
@@ -475,7 +475,7 @@ int main(int argc, char* argv[])
     LOG("Instructions (simplified):");
     LOG("   +       increase area");
     LOG("   v       decrease area");
-    LOG("   -       blank area");
+    LOG("   -       slipped area");
     LOG("   =       bind off area");
     LOG("   |       normal area");
     for(int i = 0; i < rows.size(); ++i)
@@ -531,7 +531,7 @@ int main(int argc, char* argv[])
         }
         // draw loop counter
         n = std::string("(") + std::to_string(std::accumulate(rows[i].stitches.begin(), rows[i].stitches.end(), 0, [](int acc, Stitch const& st) -> int {
-                        return acc + (!st.blank) * st.puts;
+                        return acc + (st.IsMade()) * st.puts;
                         })) + ")";
         for(int z = 0; z < n.size(); ++z) {
             int x = 3 + longest + 3;
@@ -555,7 +555,7 @@ int main(int argc, char* argv[])
 
             for(int k = 0; k < rows[i].stitches[j].puts; ++k) {
                 dots.back().emplace_back();
-                dots.back().back().skip = rows[i].stitches[j].blank;
+                dots.back().back().skip = rows[i].stitches[j].IsSlipped();
                 dots.back().back().y = (1 + rows.size() - 1 - i) * 9 + 7;
                 auto delta = (longest - lineLen) * 9;
                 dots.back().back().x = delta / 2 + cc * 9 + 3 * 9 + 4;
@@ -584,7 +584,7 @@ int main(int argc, char* argv[])
                 drawMarker(hcanvas, EXCLAMATION, RED, dots[i][cc].x + 5 + 9 * (std::max(0, rows[i].stitches[j].puts - 1)), dots[i][cc].y);
             }
             for(int put = 0; put < rows[i].stitches[j].puts; ++put) {
-                if(!rows[i].stitches[j].blank) {
+                if(!rows[i].stitches[j].IsSlipped()) {
                     if(cc > 0 && !dots[i][cc-1].skip) {
                         drawLine(hcanvas, BLACK, dots[i][cc-1].x, dots[i][cc-1].y, dots[i][cc].x, dots[i][cc].y);
                     }
@@ -631,7 +631,7 @@ int main(int argc, char* argv[])
             printf("pc pre = %d ", pc);
             for(int tt = 0; i > 0 && tt < rows[i].stitches[j].takes; ++tt) {
                 if(pc >= dots[i-1].size()) break;
-                if(!rows[i].stitches[j].blank) {
+                if(!rows[i].stitches[j].IsSlipped()) {
                     while(pc < dots[i-1].size() && dots[i-1][pc].skip) pc++;
                 }
                 ++pc;

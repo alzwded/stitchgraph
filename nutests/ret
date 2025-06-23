@@ -1,0 +1,12 @@
+
+# round / tunisian
+30: co 8 turn
+    Tss 8 return
+    Tss 6 return
+    Tss 4 return
+    Tss 2 return
+    Tss 8 return
+    bo 2 Tss 6 return
+    Tss 4 return
+    Tss 2 return
+    bo 6
