@@ -1,0 +1,64 @@
+there are stitches:
+    they may "put" (on current row)
+    they may "take" (from row below)
+    the "put" may have a marker
+    the puts and takes may have connecting lines
+    they will all appear same height
+
+    special cases:
+    - M1 (m1l/m1r) connects in between dots below (put 1, take 0, has line)
+    - - (blank) - no vis, propagates current dot up (shared)
+    - pu - half line going up (TBD, this might just be - )
+
+line colors:
+    black: normal
+    blue: behind (for dec's)
+    green: new one (for inc's)
+    red: for specials
+
+connecting lines:
+    connect Nth src to Nth dst relative to where you start the thing
+    the special value INBETWEEN is before the taken stitch (or before the stitch which would be taken, if any; i.e. Tfs is before the taken stitch, ml is taken after the last taken stitch)
+    if the stitch below is a reference (was a blank previously) then connect ALL the way to the referenced original stitch
+
+parser:
+    line ::= label? stitch_orders? end_of_line? comment? /[\n]/ ;
+    label ::= /^[^:]*/ ':' ;
+    end_of_line ::= 'j'
+                  | 'return'
+                  | 'turn' ;
+    comment ::= '#' /.*/ ;
+    stitch_orders ::= '(' stitch_orders ')' count
+                    | '[' stitch_orders ']' count
+                    | '*' stitch_orders '*' count
+                    | stitches
+                    ;
+    stitches ::= stitch + exclaim? ;
+    stitch ::= exclaim? name count? ;
+    exclaim ::= /![^ ]*/ ;
+
+then, if current line takes less than prev line,
+    on j or return, flood fill with '-' or 'pu'
+    on turn, flood fill with N 'pu' followed by N 'pu' on next line
+
+    stitch count should...n't include blanks? but include explicit PUs?
+
+then,
+    traverse dots and create connections
+        there needs to be a dot reference class for PU's for the force part to work...
+
+then,
+    compute force and determine amount of padding/shift (may be a multiple of 0.5 blocks)
+    the force per stitch is the amount offset from its lines, averaged
+        e.g. a take 2 put 1 will want to be between the 2 takes, that's its target
+
+then,
+    commence drawing
+        on drawing into a blank/shared dot, make line go to "seed" (many lines below, possibly)
+
+
+new line types:
+    slashed lines (1, 2 or 3)
+    no no no, may add glyph to line :-D
+
+    short line is a special thing (draw only half)

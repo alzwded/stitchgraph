@@ -6,6 +6,8 @@
 #include <fstream>
 #include <sstream>
 #include <string>
+#include <vector>
+#include <list>
 
 #include "stitches.h"
 #include "draw.h"
@@ -14,14 +16,108 @@ using namespace std::literals;
 
 struct Line
 {
+    typedef Stitch VALUE_TYPE;
+    struct Iterator {
+        Line& line;
+        int incr;
+        int at;
+        Iterator(Line& _line, int _incr, int _at)
+            : line(_line)
+            , incr(_incr)
+            , at(_at)
+        {}
+        Iterator(Line& _line, bool reversed)
+            : line(_line)
+            , incr(reversed ? -1 : 1)
+            , at(reversed ? _line.stitches.size() - 1 : 0)
+            {}
+        Iterator(Iterator const& other)
+            : line(other.line)
+            , incr(other.incr)
+            , at(other.at)
+        {}
+        Iterator& operator++()
+        {
+            at += incr;
+            return *this;
+        }
+        Iterator operator++(int)
+        {
+            at += incr;
+            return Iterator(line, incr, at - incr);
+        }
+        Iterator operator+(int arg)
+        {
+            return Iterator(line, incr, at + incr * arg);
+        }
+        Iterator operator-(int arg)
+        {
+            return Iterator(line, incr, at - incr * arg);
+        }
+        Iterator& operator+=(int arg)
+        {
+            at += incr * arg;
+            return *this;
+        }
+        Iterator& operator-=(int arg)
+        {
+            at -= incr * arg;
+            return *this;
+        }
+        operator bool() const
+        {
+            if(incr > 0) return at < line.stitches.size();
+            else return at >= 0;
+        }
+        VALUE_TYPE& operator*()
+        {
+            return line.stitches[at];
+        }
+        VALUE_TYPE const& operator*() const
+        {
+            return line.stitches.at(at);
+        }
+        VALUE_TYPE& operator->()
+        {
+            return line.stitches[at];
+        }
+        VALUE_TYPE const& operator->() const
+        {
+            return line.stitches.at(at);
+        }
+    };
+
     bool reversed;
-    std::vector<Stitch> stitches;
+    std::vector<VALUE_TYPE> stitches;
+
+    size_t CountMade() {
+        return std::accumulate(stitches.begin(), stitches.end(), size_t(0), [](size_t acc, decltype(stitches)::const_reference e) -> size_t {
+                return acc + e.puts * size_t(e.blank);
+                });
+    }
+    size_t CountAll() {
+        return std::accumulate(stitches.begin(), stitches.end(), size_t(0), [](size_t acc, decltype(stitches)::const_reference e) -> size_t {
+                return acc + e.puts;
+                });
+    }
 };
 
+// Represents a dot/knot we make on the canvas
+//
+// These abstract away the breaks and blanks and whatnot, these end up being the drawing
+// instructions
 struct Dot
 {
-    int x, y;
-    bool skip;
+    struct LineTo {
+        Dot* dotRef = nullptr;
+        MapEntry* lineInfo = nullptr;
+    };
+
+    int x = 0, y = 0; // canvas coordinates
+    bool skip = false;
+    Stitch* stitchRef = nullptr; // which stitch are we referencing (for DOT, or if it's blank or whatnot)
+    std::list<LineTo> lines; // where do we draw lines to (prev on row, stitches below)
+    Dot* dotRef = nullptr; // this stitch was slipped up / was a short row, so we reference a dot faaar below
 };
 
 Line parse_line(std::string const& sline)

@@ -6,9 +6,13 @@
 
 struct MapEntry
 {
-    int src;
-    int dst;
-    Color color;
+    enum SPECIAL_SRC_VALUES {
+        INBETWEEN = -1
+    };
+    int src = 0;
+    int dst = 0;
+    Color color = BLACK;
+    Marker marker = NONE;
 };
 
 struct Stitch
@@ -23,6 +27,9 @@ struct Stitch
     std::vector<MapEntry> map = {};
     bool markerBefore = false;
     bool markerAfter = false;
+
+    bool IsSlipped() { return strcmp(key, "-") == 0; }
+    bool IsBroken() { return strcmp(key, "/") == 0; }
 };
 
 static std::vector<Stitch> STITCHES {
@@ -32,12 +39,16 @@ static std::vector<Stitch> STITCHES {
             1, 1,
         },
         {
-            "<", "(blank, pad left)", true,
+            "/", "(break; unconnected to previous stitch)", true,
             0, 0,
         },
         {
-            ">", "(blank, pad right)", true,
-            0, 0,
+            "pu", "pick up / slip", false,
+            1, 1,
+            NONE, RED,
+            {
+                { 0, 0, RED },
+            }
         },
         {
             "co", "cast on", false,
@@ -118,16 +129,17 @@ static std::vector<Stitch> STITCHES {
             1, 2,
             ARROWDOWN, GREEN,
             {
-                { 0, 0, BLACK },
-                { 0, 1, GREEN },
+                { 0, 0, GREEN },
+                { 0, 1, BLACK },
             }
         },
         {
-            "pu", "pick up", false,
-            1, 1,
-            DOT, RED,
+            "M", "make one (KFB)", false,
+            1, 2,
+            ARROWDOWN, GREEN,
             {
-                { 0, 0, RED },
+                { 0, 0, GREEN },
+                { 0, 1, BLACK },
             }
         },
         {
@@ -155,6 +167,24 @@ static std::vector<Stitch> STITCHES {
                 { 1, 0, BLUE },
             }
         },
+        /*
+        {
+            "Tfs", "Tunisian full stitch", false,
+            1, 1,
+            DOT, BLACK,
+            {
+                { MapEntry::INBETWEEN, 0, BLACK, CIRCLE },
+            }
+        },
+        */
+        {
+            "Tfs", "Tunisian full stitch", false,
+            1, 1,
+            DOT, BLACK,
+            {
+                { 0, 0, BLACK, CIRCLE },
+            }
+        },
         {
             "yo", "yarn over", false,
             0, 1,
@@ -163,25 +193,25 @@ static std::vector<Stitch> STITCHES {
         {
             "ml", "make 1 left", false,
             0, 1,
-            ARROWDOWN, GREEN,
+            ARROWLEFT, GREEN,
             {
-                { -1, 0, BLACK }
+                { MapEntry::INBETWEEN, 0, BLACK }
             }
         },
         {
-            "M", "make 1", false,
+            "ma", "make 1 air", false,
             0, 1,
             ARROWDOWN, GREEN,
             {
-                { 0, 0, BLACK }
+                { 0, 0, GREEN }
             }
         },
         {
             "mr", "make 1 right", false,
             0, 1,
-            ARROWDOWN, GREEN,
+            ARROWRIGHT, GREEN,
             {
-                { +1, 0, BLACK }
+                { MapEntry::INBETWEEN, 0, BLUE }
             }
         },
         {
@@ -191,6 +221,16 @@ static std::vector<Stitch> STITCHES {
             {
                 { 0, 0, BLUE },
                 { 1, 0, BLACK },
+                { 2, 0, BLUE },
+            }
+        },
+        {
+            "SK2P", "sl k2tog psso", false,
+            3, 1,
+            ARROWUP, RED,
+            {
+                { 0, 0, BLACK },
+                { 1, 0, BLUE },
                 { 2, 0, BLUE },
             }
         },
@@ -309,6 +349,97 @@ static std::vector<Stitch> STITCHES {
             "ch", "chain", false,
             0, 1,
             CIRCLE, GREEN,
+        },
+        {
+            "dc", "double crochet", false,
+            1, 1,
+            DOT, BLACK,
+            {
+                { 0, 0, BLACK, HBAR },
+            }
+        },
+        {
+            "tc", "triple crochet", false,
+            1, 1,
+            DOT, BLACK,
+            {
+                { 0, 0, BLACK, H2BAR },
+            }
+        },
+        {
+            "qc", "quadruple crochet", false,
+            1, 1,
+            DOT, BLACK,
+            {
+                { 0, 0, BLACK, H3BAR },
+            }
+        },
+        {
+            "bb", "bobble", false,
+            1, 1,
+            DOT, RED,
+            {
+                { 0, 0, RED, BOBBLE },
+            }
+        },
+        {
+            "c2f", "cable 2 front", false,
+            3, 3,
+            DOT, BLACK,
+            {
+                { 0, 1, BLACK },
+                { 1, 2, BLACK },
+                { 2, 0, BLUE },
+            }
+        },
+        {
+            "c2b", "cable 2 back", false,
+            3, 3,
+            DOT, BLUE,
+            {
+                { 0, 2, BLUE },
+                { 1, 0, BLACK },
+                { 2, 1, BLACK },
+            }
+        },
+        {
+            "c3b", "cable 3 back", false,
+            6, 6,
+            DOT, BLUE,
+            {
+                { 0, 3, BLUE },
+                { 1, 4, BLUE },
+                { 2, 5, BLUE },
+                { 3, 0, BLACK },
+                { 4, 1, BLACK },
+                { 5, 2, BLACK },
+            }
+        },
+        {
+            "c3f", "cable 3 front", false,
+            6, 6,
+            DOT, BLACK,
+            {
+                { 0, 3, BLACK },
+                { 1, 4, BLACK },
+                { 2, 5, BLACK },
+                { 3, 0, BLUE },
+                { 4, 1, BLUE },
+                { 5, 2, BLUE },
+            }
+        },
+        {
+            "c3b", "cable 3 back", false,
+            6, 6,
+            DOT, BLUE,
+            {
+                { 0, 3, BLUE },
+                { 1, 4, BLUE },
+                { 2, 5, BLUE },
+                { 3, 0, BLACK },
+                { 4, 1, BLACK },
+                { 5, 2, BLACK },
+            }
         },
 };
 
