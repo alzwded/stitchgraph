@@ -1,3 +1,31 @@
+# ball
+
+```
+ch 1 turn
+1: 6s 1 join
+2: 2s 6 join
+3: * 2s 1  s 1 * 6 join
+4: * 2s 1  s 2 * 6 join
+5: * 2s 1  s 3 * 6 join
+6: * 2s 1  s 4 * 6 join
+
+7: s 36 join
+8: s 36 join
+9: s 36 join
+10: s 36 join
+
+11: * s2tog 1 s 4 * 6 join
+12: * s2tog 1 s 3 * 6 join
+13: * s2tog 1 s 2 * 6 join
+14: * s2tog 1 s 1 * 6 join
+15: s2tog  6 join
+16: s2tog 3 join
+
+16: bo 3
+```
+
+![samples/ball.png](ball.png)
+
 # edge
 
 ```
@@ -34,104 +62,9 @@ third rep:
 bo 8
 ```
 
-![nutests/edge.png](edge.png)
+![samples/edge.png](edge.png)
 
-# incs
-
-```
-co 8 turn
-1: k 8 turn
-2: p 8 turn
-3: pu 1 k 1 * k 1 kfb * 2 k 2 turn
-4: p 10 turn
-5: pu 1 * k 1 k2tog 1 k 1 * 2 k 1 turn
-6: p 8 !warn turn
-
-7: k 3 M 1 k 2 M 1 k 3 return
-8: k 3 M 1 k 4 M 1 k 3 return
-9: k 2 CDD 1 k 2 CDD 1 k 2 return
-
-bo 8
-```
-
-![nutests/incs.png](incs.png)
-
-# markers
-
-```
-co 8 turn
-pu  k  !B k 4 !A k 2 turn
-pu  p  !b p 4 !A p 2 !pattern-change turn
-!pattern-change pu 1 * p 1 k 1 * 3 p 1 turn
-pu 1 * p 1 k 1 * 3 p 1 turn
-
-# begin short rows
-10: k 6 turn
-    p 4 turn
-    k 6 turn
-    p 8 turn
-
-# bind offs?
-20: bo 2 k 6 turn
-    p 6 turn
-    bo 2 pu k 3 turn
-    pu p 3 turn
-    pu k 3 turn
-    bo 2 pu p  turn
-    k2tog turn
-    bo
-```
-
-![nutests/markers.png](markers.png)
-
-# ret
-
-```
-
-# round / tunisian
-30: co 8 turn
-    Tss 8 return
-    Tss 6 return
-    Tss 4 return
-    Tss 2 return
-    Tss 8 return
-    bo 2 Tss 6 return
-    Tss 4 return
-    Tss 2 return
-    bo 6
-```
-
-![nutests/ret.png](ret.png)
-
-# ball
-
-```
-ch 1 turn
-1: 6s 1 join
-2: 2s 6 join
-3: * 2s 1  s 1 * 6 join
-4: * 2s 1  s 2 * 6 join
-5: * 2s 1  s 3 * 6 join
-6: * 2s 1  s 4 * 6 join
-
-7: s 36 join
-8: s 36 join
-9: s 36 join
-10: s 36 join
-
-11: * s2tog 1 s 4 * 6 join
-12: * s2tog 1 s 3 * 6 join
-13: * s2tog 1 s 2 * 6 join
-14: * s2tog 1 s 1 * 6 join
-15: s2tog  6 join
-16: s2tog 3 join
-
-16: bo 3
-```
-
-![samples/ball.png](ball.png)
-
-# edge
+# edge\_deprecated\_testing\_only
 
 ```
 # this is a deprecated example which I'm only using as a test these days
@@ -170,7 +103,7 @@ bo 5 pu 1 k 4 yo 1 k2tog 1 k 1 turn
 bo 8
 ```
 
-![samples/edge.png](edge.png)
+![samples/edge\_deprecated\_testing\_only.png](edge_deprecated_testing_only.png)
 
 # fan\_and\_split
 
@@ -196,7 +129,7 @@ bo 1 / bo 1
 co 8 turn
 1: k 8 turn
 2: p 8 turn
-3: pu 1 k 1 * k 1 M 1 k 1 * 2 k 2 turn
+3: pu 1 k 1 * k 1 kfb * 2 k 2 turn
 4: p 10 turn
 5: pu 1 * k 1 k2tog 1 k 1 * 2 k 1 turn
 6: p 8 !warn turn
@@ -209,6 +142,26 @@ bo 8
 ```
 
 ![samples/incs.png](incs.png)
+
+# incs\_simple
+
+```
+co 8 turn
+1: k 8 turn
+2: p 8 turn
+3: pu 1 k 1 * k 1 M 1 k 1 * 2 k 2 turn
+4: p 10 turn
+5: pu 1 * k 1 k2tog 1 k 1 * 2 k 1 turn
+6: p 8 !warn turn
+
+7: k 3 M 1 k 2 M 1 k 3 return
+8: k 3 M 1 k 4 M 1 k 3 return
+9: k 2 CDD 1 k 2 CDD 1 k 2 return
+
+bo 8
+```
+
+![samples/incs\_simple.png](incs_simple.png)
 
 # lace
 
@@ -230,13 +183,41 @@ bo 14
 
 ```
 co 8 turn
+pu  k  !B k 4 !A k 2 turn
+pu  p  !b p 4 !A p 2 !pattern-change turn
+!pattern-change pu 1 * p 1 k 1 * 3 p 1 turn
+pu 1 * p 1 k 1 * 3 p 1 turn
+
+# begin short rows
+10: k 6 turn
+    p 4 turn
+    k 6 turn
+    p 8 turn
+
+# bind offs?
+20: bo 2 k 6 turn
+    p 6 turn
+    bo 2 pu k 3 turn
+    pu p 3 turn
+    pu k 3 turn
+    bo 2 pu p  turn
+    k2tog turn
+    bo
+```
+
+![samples/markers.png](markers.png)
+
+# markers\_simple
+
+```
+co 8 turn
 pu 1 k 1 !B k 4 !A k 2 turn
 pu 1 p 1 !b p 4 !A p 2 !pattern-change turn
 !pattern-change pu 1 * p 1 k 1 * 3 p 1 turn
 pu 1 * p 1 k 1 * 3 p 1 turn
 ```
 
-![samples/markers.png](markers.png)
+![samples/markers\_simple.png](markers_simple.png)
 
 # round
 

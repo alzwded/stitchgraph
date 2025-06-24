@@ -1,7 +1,7 @@
 co 8 turn
 1: k 8 turn
 2: p 8 turn
-3: pu 1 k 1 * k 1 M 1 k 1 * 2 k 2 turn
+3: pu 1 k 1 * k 1 kfb * 2 k 2 turn
 4: p 10 turn
 5: pu 1 * k 1 k2tog 1 k 1 * 2 k 1 turn
 6: p 8 !warn turn

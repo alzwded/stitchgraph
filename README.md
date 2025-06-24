@@ -9,7 +9,7 @@ The way it works is you give it stitching instructions and it follows them.
 
 Here's an attention grabbing image:
 
-![Attention grabbing example. See samples/README.md](nutests/edge.png)
+![Attention grabbing example. See samples/README.md](samples/edge.png)
 
 See [samples](./samples/README.md).
 
@@ -67,7 +67,7 @@ Putting it all together:
 
 There are some special "stitches" to be aware of.
 
-See [samples](./samples/README.md) or [nutests](./nutests).
+See [samples](./samples/README.md).
 
 Special "stitches"
 ------------------
