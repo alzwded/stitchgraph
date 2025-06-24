@@ -9,7 +9,7 @@ The way it works is you give it stitching instructions and it follows them.
 
 Here's an attention grabbing image:
 
-![nutests/edge.png](edge.png)
+![Attention grabbing example. See samples/README.md](nutests/edge.png)
 
 See [samples](./samples/README.md).
 
