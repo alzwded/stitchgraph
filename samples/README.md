@@ -68,7 +68,7 @@ bo 8
 
 ```
 # this is a deprecated example which I'm only using as a test these days
-# see nutests/edge instead
+# see edge instead
 
 - 5 co 8 turn
 1: pu 1 k 2 yo 1 k2tog 1 k 1 yo 2 k 2 - 3 turn
@@ -219,6 +219,25 @@ pu 1 * p 1 k 1 * 3 p 1 turn
 
 ![samples/markers\_simple.png](markers_simple.png)
 
+# ret
+
+```
+
+# round / tunisian
+30: co 8 turn
+    Tss 8 return
+    Tss 6 return
+    Tss 4 return
+    Tss 2 return
+    Tss 8 return
+    bo 2 Tss 6 return
+    Tss 4 return
+    Tss 2 return
+    bo 6
+```
+
+![samples/ret.png](ret.png)
+
 # round
 
 ```
@@ -228,8 +247,6 @@ pu 1 * p 1 k 1 * 3 p 1 turn
 3: [ * 2s 1 s 1 * 3 s 6 ] 2 join
 4: [ * 2s 1 s 2 * 3 s 6 ] 2 join
 5: s 36 join
-#6: s 18 !turn - 2 !return s 16 turn
-#7: s 16 !turn - 2 !return s 18 turn
 6: s 18 !turn  sk 2 / !return s 16 turn
 7: s 16 !turn  /  !return s 18 turn
 8: s 18 ch 2 s 16 join
