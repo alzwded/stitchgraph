@@ -268,8 +268,8 @@ co 10 turn
  7: | 1 Tss 1 Xss 3 Tss 1 || 1
  8: | 1 Xss 4 || 1
  9: | 1 Tss 1 Xss 3 Tss 1 || 1
-10: | 1 Tss 1 || 1  bo 4 /      | 1  Tss 1 || 1
-11: | 1 Tss 1 || 1  /      | 1  Tss 1 || 1
+10: | 1 Tss 1 || 1  / bo 4       | 1  Tss 1 || 1
+11: | 1 Tss 1 || 1  /            | 1  Tss 1 || 1
 12: bo 3 / bo 3
 ```
 
