@@ -49,10 +49,6 @@ static std::vector<Stitch> STITCHES {
             "-", "slip/pick up/ignore", Stitch::P,
             1, 1,
         },
-            // TODO support breaking (for vertical holes, split back, etc)
-            // however, this requires some shenanigans in the layouting code
-            // as separate sections don't have a stitch between them to pull them,
-            // so it requires those sections to be grouped when resolving forces...
 #define BREAK_STITCH_INDEX 1
         {
             "/", "break; unconnected to previous stitch on same row", Stitch::BREAK,
