@@ -138,7 +138,37 @@ bo 14
 
 ![samples/lace.png](lace.png)
 
-# markers
+# markers\_simple
+
+```
+co 8 turn
+pu 1 k 1 !B k 4 !A k 2 turn
+pu 1 p 1 !b p 4 !A p 2 !pattern-change turn
+!pattern-change pu 1 * p 1 k 1 * 3 p 1 turn
+pu 1 * p 1 k 1 * 3 p 1 turn
+```
+
+![samples/markers\_simple.png](markers_simple.png)
+
+# round
+
+```
+   ch 7 !air ch 3 !join-with-self ch 6 join
+1: 3s 1 s 6 sk 1 3s 1 sk 1 s 6 join
+2: [ 2s 3 s 6 ] 2 join
+3: [ * 2s 1 s 1 * 3 s 6 ] 2 join
+4: [ * 2s 1 s 2 * 3 s 6 ] 2 join
+5: s 36 join
+6: s 18 !turn  sk 2 / !return s 16 turn
+7: s 16 !turn  /  !return s 18 turn
+8: s 18 ch 2 s 16 join
+9: s 18  s 18 join
+10: * s2tog 1 s 2 * 3 s 6    * s2tog 1 s 2 * 3 s 6 join
+```
+
+![samples/round.png](round.png)
+
+# shortrows
 
 ```
 co 8 turn
@@ -164,21 +194,9 @@ pu 1 * p 1 k 1 * 3 p 1 turn
     bo
 ```
 
-![samples/markers.png](markers.png)
+![samples/shortrows.png](shortrows.png)
 
-# markers\_simple
-
-```
-co 8 turn
-pu 1 k 1 !B k 4 !A k 2 turn
-pu 1 p 1 !b p 4 !A p 2 !pattern-change turn
-!pattern-change pu 1 * p 1 k 1 * 3 p 1 turn
-pu 1 * p 1 k 1 * 3 p 1 turn
-```
-
-![samples/markers\_simple.png](markers_simple.png)
-
-# ret
+# shorttun
 
 ```
 
@@ -195,25 +213,7 @@ pu 1 * p 1 k 1 * 3 p 1 turn
     bo 6
 ```
 
-![samples/ret.png](ret.png)
-
-# round
-
-```
-   ch 7 !air ch 3 !join-with-self ch 6 join
-1: 3s 1 s 6 sk 1 3s 1 sk 1 s 6 join
-2: [ 2s 3 s 6 ] 2 join
-3: [ * 2s 1 s 1 * 3 s 6 ] 2 join
-4: [ * 2s 1 s 2 * 3 s 6 ] 2 join
-5: s 36 join
-6: s 18 !turn  sk 2 / !return s 16 turn
-7: s 16 !turn  /  !return s 18 turn
-8: s 18 ch 2 s 16 join
-9: s 18  s 18 join
-10: * s2tog 1 s 2 * 3 s 6    * s2tog 1 s 2 * 3 s 6 join
-```
-
-![samples/round.png](round.png)
+![samples/shorttun.png](shorttun.png)
 
 # simplest
 
