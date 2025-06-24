@@ -127,7 +127,7 @@
 - takes: 0
 - puts:  1
 - marker: ARROWDOWN
-- map: (0 <- -1) 
+- map: (0 <- inbetween) 
 
 ## `|`
 
@@ -180,7 +180,7 @@
 - takes: 0
 - puts:  1
 - marker: ARROWLEFT
-- map: (0 <- -1) 
+- map: (0 <- inbetween) 
 
 ## `ma`
 
@@ -197,7 +197,7 @@
 - takes: 0
 - puts:  1
 - marker: ARROWRIGHT
-- map: (0 <- -1) 
+- map: (0 <- inbetween) 
 
 ## `CDD`
 

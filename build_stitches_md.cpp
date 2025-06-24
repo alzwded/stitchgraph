@@ -36,12 +36,20 @@ const char* TranslateMarker(Marker m)
 #undef C
 }
 
+void printSource(FILE* f, int src)
+{
+    if(src != MapEntry::INBETWEEN) fprintf(f, "%d", src);
+    else fprintf(f, "inbetween");
+}
+
 void PrintMap(FILE* f, std::vector<MapEntry> const& map)
 {
     if(map.empty()) return;
     fprintf(f, "- map: ");
     for(auto&& me : map) {
-        fprintf(f, "(%d <- %d) ", me.dst, me.src);
+        fprintf(f, "(%d <- ", me.dst);
+        printSource(f, me.src);
+        fprintf(f, ") ");
     }
     fprintf(f, "\n");
 }
