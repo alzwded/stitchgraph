@@ -452,19 +452,6 @@ static std::vector<Stitch> STITCHES {
                 { 5, 2, BLUE },
             }
         },
-        {
-            "c3b", "cable 3 back", Stitch::N,
-            6, 6,
-            DOT, BLUE,
-            {
-                { 0, 3, BLUE },
-                { 1, 4, BLUE },
-                { 2, 5, BLUE },
-                { 3, 0, BLACK },
-                { 4, 1, BLACK },
-                { 5, 2, BLACK },
-            }
-        },
 };
 
 #endif

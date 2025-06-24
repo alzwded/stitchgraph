@@ -387,12 +387,3 @@
 - marker: DOT
 - map: (3 <- 0) (4 <- 1) (5 <- 2) (0 <- 3) (1 <- 4) (2 <- 5) 
 
-## `c3b`
-
-- Symbol: `c3b`
-- Description: cable 3 back 
-- takes: 6
-- puts:  6
-- marker: DOT
-- map: (3 <- 0) (4 <- 1) (5 <- 2) (0 <- 3) (1 <- 4) (2 <- 5) 
-
