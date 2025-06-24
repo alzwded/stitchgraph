@@ -1,3 +1,15 @@
+/*
+Copyright 2025 Vlad Meșco
+
+Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
+
+1. Redistributions of source code must retain the above copyright notice, this list of conditions and the following disclaimer.
+
+2. Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the following disclaimer in the documentation and/or other materials provided with the distribution.
+
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS “AS IS” AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+*/
+// stdlib
 #include <cmath>
 #include <cstdio>
 #include <cstdlib>
@@ -10,6 +22,10 @@
 #include <vector>
 #include <list>
 
+// platform
+#include <unistd.h> // for getopt
+
+// own
 #include "stitches.h"
 #include "draw.h"
 
@@ -27,6 +43,7 @@
 
 using namespace std::literals;
 
+// optimistic programming: nobody will change the definition from "black line without marker" :-)
 static MapEntry connectingStitch;
 
 struct Row
@@ -369,21 +386,8 @@ Row parse_row(std::string const& insline)
     return rval;
 }
 
-void usage(const char* argv0)
+void main2(std::string const& fname)
 {
-    printf("Usage: %s file\n", argv0);
-    exit(2);
-}
-
-int main(int argc, char* argv[])
-{
-    // TODO getopt for version and help
-
-    if(argc < 2) usage(argv[0]);
-
-    if(strcmp(argv[1], "-h") == 0) usage(argv[0]);
-
-    std::string fname = argv[1];
     std::fstream fin(fname, std::ios::in);
 
     std::vector<std::string> slines;
@@ -423,19 +427,6 @@ int main(int argc, char* argv[])
         }
         sourceLineNumber++;
         LOG("Row's direction is %s", ll.reversed ? "left-to-right" : "right-to-left");
-        /* 
-        // TODO determine if we still need to reverse rows ever again
-        if(!ll.reversed) { // always left-to-right for later
-            std::reverse(ll.stitches.begin(), ll.stitches.end());
-            std::for_each(ll.stitches.begin(), ll.stitches.end(), [](Stitch& st) {
-                    std::swap(st.markerBefore, st.markerAfter);
-                    std::for_each(st.map.begin(), st.map.end(), [&st](MapEntry& me) {
-                            me.src = st.takes - 1 - me.src;
-                            me.dst = st.puts - 1 - me.dst;
-                            });
-                    });
-        }
-        */
 
         size_t thisLen = ll.CountMade();
         LOG("Row's true length: %zd puts %zd takes", thisLen, ll.CountTaken());
@@ -982,144 +973,40 @@ int main(int argc, char* argv[])
     auto graphFname = fname + ".png"s;
     LOG("Writing %s", graphFname.c_str());
     writeCanvas(hcanvas, graphFname.c_str());
+}
+
+static const char* FLAGS = "h";
+void usage(const char* argv0)
+{
+    printf("%s", reinterpret_cast<const char*>(u8"StitchGraph by Vlad Meșco\n\n"));
+    printf("Usage: %s [-%s] file ...\n", argv0, FLAGS);
+    exit(2);
+}
+int main(int argc, char* argv[])
+{
+    int flags, opt;
+    char* argv0 = strdup(argv[0]);
+
+    while((opt = getopt(argc, argv, FLAGS)) != -1) {
+        switch(opt) {
+            case 'h':
+                usage(argv0);
+                break;
+            default:
+                fprintf(stderr, "No such switch: %c\n", opt);
+                break;
+        }
+    }
+
+    if(optind >= argc) usage(argv0);
+
+    for(int argvi = optind; argvi < argc; ++argvi) {
+        std::string fname = argv[argvi];
+        printf("Processing %s\n", fname.c_str());
+        main2(fname);
+        printf("...done %s\n", fname.c_str());
+    }
 
     // done-dee-done.
-    exit(0);
-
-
-#if 0
-    // TODO new code above this line, purge remaining dead code
-    //auto hcanvas = initCanvas(3 * 9 + longest * 9 + 3 * 9 + 5 * 9, (rows.size() + 3) * 9);
-
-    // first pass -- determine where dots sit, because we need to stitch neighbours together
-    //std::vector<std::vector<Dot>> dots;
-    for(int i = 0; i < rows.size(); ++i) {
-        dots.emplace_back();
-
-        std::string n = std::to_string(i);
-        // draw line number
-        for(int z = 0; i > 0 && z < n.size(); ++z) {
-            int x = 0;
-            if(!rows[i].reversed) {
-                x = n.size() - 1 - z;
-                x += longest + 3;
-            } else {
-                x = 2 - z;
-            }
-            x *= 9;
-            drawGlyph(hcanvas, n[n.size() - 1 - z], BLACK, x, (2 + rows.size() - 1 - i) * 9 - 3);
-        }
-        // draw loop counter
-        n = std::string("(") + std::to_string(std::accumulate(rows[i].stitches.begin(), rows[i].stitches.end(), 0, [](int acc, Stitch const& st) -> int {
-                        return acc + (st.IsMade()) * st.puts;
-                        })) + ")";
-        for(int z = 0; z < n.size(); ++z) {
-            int x = 3 + longest + 3;
-            x *= 9;
-            x += (4 - z) * 9;
-            drawGlyph(hcanvas, n[n.size() - 1 - z], BLACK, x, (2 + rows.size() - 1- i) * 9 - 3);
-        }
-
-        int lineLen = std::accumulate(rows[i].stitches.begin(), rows[i].stitches.end(), 0, [](int acc, Stitch const& st) -> int {
-                return acc + st.puts;
-                });
-
-        // generate dots
-        int cc = 0;
-        for(int j = 0; j < rows[i].stitches.size(); ++j) {
-            // TODO
-            // if this sits above a blank, it magnetizes downwards by
-            // N-4 px, where N is the amount of blanks beneath it (short rows)
-            // TODO magnetize up if part of dec, magnetize down if part
-            //      of inc
-
-            for(int k = 0; k < rows[i].stitches[j].puts; ++k) {
-                dots.back().emplace_back();
-                dots.back().back().skip = rows[i].stitches[j].IsSlipped();
-                dots.back().back().y = (1 + rows.size() - 1 - i) * 9 + 7;
-                auto delta = (longest - lineLen) * 9;
-                dots.back().back().x = delta / 2 + cc * 9 + 3 * 9 + 4;
-                ++cc;
-            } // for each put stitch
-        } // for each stitch
-        printf("Line %d used cc = %d out of lineLen = %d\n", i, cc, lineLen);
-    } // for each line
-
-    // second pass -- generate draw instructions
-    for(int i = 0; i < rows.size(); ++i) {
-        printf("==========\n");
-        printf("line %d\n", i);
-        printf("----------\n");
-        int cc = 0;
-        int pc = 0;
-        //while(cc < dots[i].size() && dots[i][cc].skip) cc++;
-        //if(i > 0) while(pc < dots[i-1].size() && dots[i-1][pc].skip) pc++;
-        for(int j = 0; j < rows[i].stitches.size(); ++j) {
-            if(rows[i].stitches[j].markerBefore) {
-                printf("Marker before st %d\n", j);
-                drawMarker(hcanvas, EXCLAMATION, RED, dots[i][cc].x - 4, dots[i][cc].y);
-            }
-            if(rows[i].stitches[j].markerAfter) {
-                printf("Marker after st %d\n", j);
-                drawMarker(hcanvas, EXCLAMATION, RED, dots[i][cc].x + 5 + 9 * (std::max(0, rows[i].stitches[j].puts - 1)), dots[i][cc].y);
-            }
-            for(int put = 0; put < rows[i].stitches[j].puts; ++put) {
-                if(!rows[i].stitches[j].IsSlipped()) {
-                    if(cc > 0 && !dots[i][cc-1].skip) {
-                        drawLine(hcanvas, BLACK, dots[i][cc-1].x, dots[i][cc-1].y, dots[i][cc].x, dots[i][cc].y);
-                    }
-                    if(cc < dots[i].size() - 1 && !dots[i][cc+1].skip) {
-                        drawLine(hcanvas, BLACK, dots[i][cc+1].x, dots[i][cc+1].y, dots[i][cc].x, dots[i][cc].y);
-                    }
-                    drawMarker(hcanvas, rows[i].stitches[j].marker, rows[i].stitches[j].color, dots[i][cc].x, dots[i][cc].y);
-                    if(rows[i].stitches[j].takes == 0 && !rows[i].stitches[j].map.empty()) {
-                        drawLine(hcanvas, rows[i].stitches[j].map[0].color, dots[i-1][pc].x - 5, dots[i-1][pc].y, dots[i][cc].x, dots[i][cc].y);
-                    }
-                    for(int taken = 0; taken < rows[i].stitches[j].takes; ++taken) {
-                        // find combination in map
-                        for(int z = 0; z < rows[i].stitches[j].map.size(); ++z) {
-                            if(rows[i].stitches[j].map[z].src == taken
-                                    && rows[i].stitches[j].map[z].dst == put)
-                            {
-                                auto NTH_TAKEN = [&](int pc, int taken) {
-                                    printf("NTH_TAKEN: pc = %d taken = %d ", pc, taken);
-                                    int rval = pc;
-                                    while(rval < dots[i-1].size() && dots[i-1][rval].skip) rval++;
-                                    for(int j = 0; j < taken; ++j) {
-                                        printf(" >> ?%d ?%zu :: ", rval, dots[i-1].size());
-                                        if(rval >= dots[i-1].size()) break;
-                                        while(rval < dots[i-1].size() && dots[i-1][rval].skip) rval++;
-                                        rval++;
-                                        printf(" ?%d ", rval);
-                                    }
-                                    printf("    rval = %d\n", rval);
-                                    return rval;
-                                };
-                                auto pc_taken = NTH_TAKEN(pc, taken);
-                                printf("    put = %d taken = %d src = %d dst = %d color = %06X\n",
-                                        put, taken, rows[i].stitches[j].map[z].src,rows[i].stitches[j].map[z].dst,rows[i].stitches[j].map[z].color);
-                                drawLine(hcanvas, rows[i].stitches[j].map[z].color, dots[i-1][pc_taken].x, dots[i-1][pc_taken].y, dots[i][cc].x, dots[i][cc].y);
-                            }
-                        } // for each MapEntry
-                    } // for each taken
-                }
-                if(cc < dots[i].size()) {
-                    cc++;
-                    //while(cc < dots[i].size() && dots[i][cc].skip) ++cc;
-                }
-            } // for each put
-            printf("pc pre = %d ", pc);
-            for(int tt = 0; i > 0 && tt < rows[i].stitches[j].takes; ++tt) {
-                if(pc >= dots[i-1].size()) break;
-                if(!rows[i].stitches[j].IsSlipped()) {
-                    while(pc < dots[i-1].size() && dots[i-1][pc].skip) pc++;
-                }
-                ++pc;
-            }
-            printf("pc post = %d\n", pc);
-        } // for each stitch
-    } // for each line
-
     return 0;
-#endif
 }
