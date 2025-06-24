@@ -7,6 +7,29 @@ It mostly renders as-if you drew the pattern out on graph paper (in full), but i
 
 The way it works is you give it stitching instructions and it follows them.
 
+Building and Running
+====================
+
+Building
+--------
+
+If you've spotted the Makefile already and you know what that is, you can skip this section.
+
+This program requires a basic POSIX (=Linux, WSL, maybe MacOS) system with a C++20 compiler (=gcc), GNU make and libpng.
+
+On Windows, please enable WSL with e.g. Ubuntu. (google what I just said) You can then follow the instructions in the "Linux" program you just installed.
+
+Normally you can get everything from your distro (e.g. `apt install gcc g++ make libgpng-dev` or similar);
+
+After that, run `make` in the root directory of the thing you got (via Git or download-as-zip).
+
+Running
+-------
+
+`./stitchgraph pattern_file` will produce `pattern_file.png` which you can oggle at.
+
+What's a *pattern file*? Read below.
+
 File format
 ===========
 
