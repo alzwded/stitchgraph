@@ -68,9 +68,13 @@ There are "bind off" stitches which will no longer be counted, and you can't "pi
 
 There is the "broken" (`/`) stitch. All this does is inform the program that the following stitch is not connected to the previous stitch (e.g. to account for working off two yarn skeins, or switching from in-the-round to flat in Tunisian etc). You do need to remember to place this whenever this happens. The layouting engine also takes these into account, and it groups continuous stitches for resolving tension.
 
-The last one is the "slip" stitch. These get added automatically by the parser when your rows are short (in either direction). You can place these manually as well. Unlike the `pu` stitch which gets a fancy render, these are only ever rendered once you come back to them (and you will see connecting lines stretching downards across multiple rows). This one probably requires more work as I haven't tested it in complex patterns whicoh have wildly varying widths and heights.
+Another one is the "slip" stitch. These get added automatically by the parser when your rows are short (in either direction). You can place these manually as well. Unlike the `pu` stitch which gets a fancy render, these are only ever rendered once you come back to them (and you will see connecting lines stretching downards across multiple rows). This one probably requires more work as I haven't tested it in complex patterns whicoh have wildly varying widths and heights.
 
-Finally, there are the end-of-row instructions:
+Finally, there are some keywords that control how the program works which are not implemented as "stitches" (for reasons I hope are obvious).
+
+There is a "marker" (`!`) which can have letters glued to it (e.g. `!pm`, notice there are no spaces). This will just render as a red `!` at that position.
+
+These are the available end-of-row instructions:
 
 - `turn`, which will continue the following row in the opposite direction;
 - `return` and `j`, which will continue the next row in the same direction. There is no functional difference between `return` and `j` (join), it's more for readability :-)
@@ -90,6 +94,10 @@ After that, it counts your rows and counts your stitches.
 
 At the end, it begins drawing everything and producint a *PNG* image of the result. Kinda hard to read.
 
+The location of the row number indicates which direction you're supposed to be reading the chart in. If it's on the right, it goes right to left.
+
+How are stitch counts calculated? I don't even know anymore. The intention was "how many stitches you have on your needle at the end of the row", but I need to do another pass to check that's true. Also, that metric doesn't really work if you're thinking in terms of "crochet".
+
 Stitches
 ========
 
@@ -107,3 +115,14 @@ The information that goes into a stitch is as follows:
 - `map` contains a map of what lines to draw when connecting stitches to the row below.
 
 A map entry has a `source` dot (stitch on row below) and a `destination` dot (one of the newly formed stitches). They optionally have a `marker` (e.g. to fake a Tfs). The special value `INBETWEEN` is used to visually represent Knitting's `m1l` and `m1r` which don't actually `take` a stitch, they get formed by picking up from inbetween the stitches. Don't worry about this one.
+
+Connecting line colors have some sort of meaning to them:
+- black: normal
+- blue: this ends up "behind" in some sense
+- green: this is a newly made stitch
+- red: something particularily odd
+
+Marker colors also try to have some meaning:
+- black, blue: normal
+- green: newly generated stitches (e.g. chains, cast ons)
+- red: decrease of some sort *or* something attention grabbing
