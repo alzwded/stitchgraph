@@ -977,6 +977,7 @@ void main2(std::string const& fname)
     auto graphFname = fname + ".png"s;
     LOG("Writing %s", graphFname.c_str());
     writeCanvas(hcanvas, graphFname.c_str());
+    destroyCanvas(hcanvas);
 }
 
 static const char* FLAGS = "h";
