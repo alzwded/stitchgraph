@@ -11,7 +11,7 @@ rm -f samples/README.md
 touch samples/README.md
 
 for i in samples/*.png ; do
-    ./stitchgraph "${i%.*}" || fail "$i"
+    ./stitchgraph "${i%.*}" || fail "$i failed"
     ii=${i##*/}
     title="# ${ii%.*}"
     title=$( echo "$title" | sed -e 's/_/\\_/g' )

@@ -49,7 +49,6 @@ static std::vector<Stitch> STITCHES {
             "-", "(blank)", Stitch::P,
             1, 1,
         },
-#if 0
             // TODO support breaking (for vertical holes, split back, etc)
             // however, this requires some shenanigans in the layouting code
             // as separate sections don't have a stitch between them to pull them,
@@ -59,7 +58,6 @@ static std::vector<Stitch> STITCHES {
             "/", "(break; unconnected to previous stitch)", Stitch::BREAK,
             0, 0,
         },
-#endif
         {
             "pu", "pick up / slip", Stitch::N,
             1, 1,
