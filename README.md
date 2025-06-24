@@ -60,9 +60,14 @@ Stitching instructions may be grouped with `*`s or parentheses followed by a man
 
     * k yo SSK k k2tog yo * 4
 
+You can also add markers in your chart with `!`
+
+    !pm
+    !start-pattern
+
 Putting it all together:
 
-    3: pu k    * k yo SSK k k2tog yo * 4   k 2   turn # right side
+    3: pu k    !pm  * k yo SSK k k2tog yo * 4  !pm    k 2   turn # right side
     4: p 28 turn
 
 ![example render of the instructions above](./samples/simplest.png)
