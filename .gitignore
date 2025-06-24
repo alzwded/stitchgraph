@@ -2,6 +2,7 @@
 !samples/*.png
 !nutests/*.png
 stitchgraph
+build_stitches_md
 *.o
 __*
 *log*

@@ -11,7 +11,9 @@ make || fail 'failed to build'
 rm -f samples/README.md
 touch samples/README.md
 
-for i in samples/*.png nutests/*.png ; do
+rm -f samples/*.fail nutests/*.fail
+
+for i in nutests/*.png samples/*.png ; do
     ./stitchgraph "${i%.*}" || fail "$i failed"
     ii=${i##*/}
     title="# ${ii%.*}"
@@ -28,3 +30,5 @@ for i in samples/*.png nutests/*.png ; do
         echo ''
     } >> samples/README.md
 done
+
+ls samples/*.fail nutests/*.fail

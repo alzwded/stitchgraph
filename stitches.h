@@ -46,7 +46,7 @@ static std::vector<Stitch> STITCHES {
     // BLUE vertical stitches are below
 #define BLANK_STITCH_INDEX 0
         {
-            "-", "(blank)", Stitch::P,
+            "-", "slip/pick up/ignore", Stitch::P,
             1, 1,
         },
             // TODO support breaking (for vertical holes, split back, etc)
@@ -55,7 +55,7 @@ static std::vector<Stitch> STITCHES {
             // so it requires those sections to be grouped when resolving forces...
 #define BREAK_STITCH_INDEX 1
         {
-            "/", "(break; unconnected to previous stitch)", Stitch::BREAK,
+            "/", "break; unconnected to previous stitch on same row", Stitch::BREAK,
             0, 0,
         },
         {
