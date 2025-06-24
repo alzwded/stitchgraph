@@ -62,7 +62,6 @@ Stitching instructions may be grouped with `*`s or parentheses followed by a man
 
 Putting it all together:
 
-    co 28
     3: pu k    * k yo SSK k k2tog yo * 4   k 2   turn # right side
     4: p 28 turn
 
