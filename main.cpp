@@ -447,6 +447,10 @@ void main2(std::string const& fname)
     // add blanks where we were short
     reversed = true; // reset reversed
     previousLineLength = rows[0].CountStitchable();
+    if(rows[0].CountTaken() > 0) {
+        LOG("Row 0 takes stitches, but you have none defined! Cast some on");
+        abort();
+    }
     for(int i = 1; i < rows.size(); ++i) {
         LOG("Prev %zd current %zd", previousLineLength, rows[i].CountTaken());
         if(rows[i].CountTaken() > previousLineLength)
