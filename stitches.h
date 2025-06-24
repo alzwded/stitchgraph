@@ -209,7 +209,7 @@ static std::vector<Stitch> STITCHES {
             1, 1,
             DOT, BLACK,
             {
-                { 0, 0, BLACK, CIRCLE },
+                { 0, 0, BLACK, BOBBLE },
             }
         },
         {

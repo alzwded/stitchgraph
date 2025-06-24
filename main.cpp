@@ -207,23 +207,27 @@ struct Row
 // instructions
 struct Dot
 {
+    // Struct to represent lines to draw
     struct LineTo {
         Dot* dotRef = nullptr;
         MapEntry* lineInfo = nullptr;
-        Dot* otherDotRef = nullptr;
+        Dot* otherDotRef = nullptr; // if not null, it will draw the line inbetween those dots; to support MapEntry::INBETWEEN
     };
 
     int x = 0, y = 0; // canvas coordinates
-    bool skip = false;
+    bool skip = false; // true for "-" / P stitch, to remove it from alignment
     Stitch* stitchRef = nullptr; // which stitch are we referencing (for DOT, or if it's blank or whatnot)
     std::list<LineTo> lines; // where do we draw rows to (prev on row, stitches below)
     std::list<Dot*> connectedTo; // for weight calculation
     Dot* dotRef = nullptr; // this stitch was slipped up / was a short row, so we reference a dot faaar below
-    bool disconnected = false;
-    bool markerLeft = false;
-    bool markerRight = false;
+    bool disconnected = false; // true if it should draw a line to the previous stitch on the same line
+    bool markerLeft = false; // place EXCLAMATION to the left of this stitch on the canvas
+    bool markerRight = false; // place EXCLAMATION to the right of this stitch on the canvas
 };
 
+// Parse a row of stitches per stitches.h and returns a Row
+//
+// Reentrant -- calls itself recursively if it encounters *, ( or [
 Row parse_row(std::string const& insline)
 {
     LOG("parse_row %s", insline.c_str());
@@ -285,7 +289,10 @@ Row parse_row(std::string const& insline)
             rval.stitches.insert(rval.stitches.end(), intermed.stitches.begin(), intermed.stitches.end());
         }
     };
-    // encountered !
+    // encountered '!' marker
+    //
+    // If we have a "previous stitch" of the "N" variety on a row, it will just attach itself to that stitch;
+    // otherwise, it remains pending and it will attach itself to right before the next available renderable normal stitch
     bool marker = false;
     while(std::getline(is, s, ' ')) {
         // empty space goes whooosh!
@@ -386,10 +393,12 @@ Row parse_row(std::string const& insline)
     return rval;
 }
 
+// Process one stitch file and produce one PNG file
 void main2(std::string const& fname)
 {
     std::fstream fin(fname, std::ios::in);
 
+    // read in stitch file
     std::vector<std::string> slines;
     std::string sline;
     while(fin.good()) {
@@ -465,7 +474,7 @@ void main2(std::string const& fname)
         }
         int delta = -rows[i].CountTaken() + rows[i - 1].CountStitchable();
         if(delta) {
-            LOG("Row %d is short, need to add %d stitches", rows[i].number, delta);
+            LOG("Row %d@%d is short, need to add %d stitches", rows[i].number, rows[i].srcLine, delta);
             bool atEnd = true;
             if(atEnd) {
                 for(int j = 0; j < delta; ++j) {
@@ -502,13 +511,15 @@ void main2(std::string const& fname)
         previousLineLength = rows[i].CountStitchable();
     }
 
-
+    // figure out how much memory we need to allocate for dots
     size_t longest = 0;
     for(int i = 1; i < rows.size(); ++i) {
         if(auto allPuts = rows[i].CountLiterallyAllPuts();
                 allPuts > longest)
             longest = allPuts;
     }
+    LOG("There are %zd rows of up to %zd stitches", rows.size(), longest);
+    LOG("");
 
     LOG("Instructions (simplified):");
     LOG("   + &     increase area");
@@ -585,16 +596,20 @@ void main2(std::string const& fname)
     int previ = 0, previncr = +1;
     for(int rowy = 0; rowy < rows.size(); ++rowy)
     {
-        LOG("=============================");
-        LOG("Populating row %d", rowy);
-        LOG("=============================");
         // current row
         auto& row = rows[rowy];
-        int curri = 0;
-        // create row of dots
+        LOG("=============================");
+        LOG("Populating row %d (%d@%d)", rowy, row.number, row.srcLine);
+        LOG("=============================");
+        int curri = 0; // where to insert the next dot; we can't allocate memory past this point because we'll be storing pointers to earlier points, and I don't want to deal with indirect memory references because that's silly
+        // current row of dots where curri points into;
+        // dots are always inserted at the end, since previ deals with the direction the stitches are moving in (previncr)
         auto& rowdots = dots[rowy];
-        // keep track of if we've built a first stitch on this row yet
-        bool first = true;
+        // is this current stitch connected to the previous one on the same row?
+        bool disconnected = true;
+        // iterator into actual stitching instructions;
+        // the direction is never reversed, because the stitches were inserted in their natural order,
+        // and we are following the natural order of things.
         auto it = row.First(false);
         LOG("Direction: %s", row.reversed ? "left-to-right" : "right-to-left");
         while(it) {
@@ -607,17 +622,18 @@ void main2(std::string const& fname)
             }
             if(it->IsNormal() || it->IsBoundOff()) {
                 LOG("    normal/boundoff");
+                // generate it->puts stitches
                 for(int ii = 0; ii < it->puts; ++ii) {
                     LOG("    putting %d at %d", ii, curri);
                     auto& dot = rowdots[curri++];
                     LOG("         curri now past the end at %d", curri);
                     dot.x = xcoord;
                     dot.y = ycoord;
-                    dot.skip = false;
+                    dot.skip = false; // this stitch will participate in weight calculations
                     dot.stitchRef = &*it;
                     dot.dotRef = &dot;
                     // construct new stitches
-                    if(!first) {
+                    if(!disconnected) {
                         // connect to previous stitch
                         if(ii == 0 && (it - 1)->IsNormal() || (it - 1)->IsBoundOff()
                                 || ii > 0)
@@ -631,22 +647,24 @@ void main2(std::string const& fname)
                             dot.lines.back().otherDotRef = nullptr;
                             dot.lines.back().lineInfo = &connectingStitch;
                         }
-                        else
+                        else // previous stitch was a break or a bind off, so we can't connect to it
                         {
-                            first = false;
+                            disconnected = false;
                             dot.disconnected = true;
                             LOG("disconnected");
                         }
-                    } else {
-                        first = false;
+                    } else { // this is the first stitch on the line
+                        disconnected = false;
                         dot.disconnected = true;
                         LOG("disconnected");
                     }
 
                     // update xcoord
-                    xcoord = xcoord + 9 * dxcoord;
+                    xcoord = xcoord + 9 * dxcoord; // FIXME 9 is the size of the font, this should probably be refactored at some point...
                 }
 
+                // Handle '!' markers.
+                // We need to translate "before"/"after" to "left"/"right" for the renderer
                 if(it->markerBefore) {
                     LOG("    marker before");
                     if(row.reversed) {
@@ -668,9 +686,9 @@ void main2(std::string const& fname)
                     }
                 }
 
-                // take from previous row
+                // take stitches from previous row;
                 // translate src and dst, keeping direction in mind
-                if(it->takes > 9 ) {
+                if(it->takes > 9 ) { // be blessed ye who actually "k10tog" or "dc 10 into next sc"
                     LOG("Code only supports taking up to 9 stitches, asked to take %d", it->takes);
                     abort();
                 }
@@ -678,10 +696,13 @@ void main2(std::string const& fname)
                     LOG("Code only supports putting up to 9 stitches, asked to put %d", it->puts);
                     abort();
                 }
-                int lutme[9];
-                int lutprev[9] = { previ - previncr, previ };
+                // construct look-up tables from relative indices (0, 1, 2) to actual indices into the dots[] array
+                int lutme[9]; // dst stitches
+                int lutprev[9] = { previ - previncr, previ }; // src stitches
                 memset(lutme, 255, 9 * sizeof(int));
                 memset(lutprev + 2, 255, 7 * sizeof(int));
+                // pre-initialize lutprev to previous and "current" stitch to handle MapEntry::INBETWEEN, 
+                // which takes no stitches, but renders right after the previous stitch
                 if(rowy > 0) {
                     while(lutprev[0] >= 0 && lutprev[0] < numDots[rowy - 1] && !dots[rowy - 1][lutprev[0]].stitchRef->IsCountable()) { lutprev[0] = lutprev[0] + previncr; lutprev[1] = lutprev[0] + previncr; }
                     while(lutprev[1] >= 0 && lutprev[1] < numDots[rowy - 1] && !dots[rowy - 1][lutprev[1]].stitchRef->IsCountable()) lutprev[1] = lutprev[1] + previncr;
@@ -694,6 +715,7 @@ void main2(std::string const& fname)
                     LOG("    taking %d/%d at previ %d", i, it->takes, previ);
                     previ = previ + previncr;
                 }
+                // I don't remember why I did this, probably for safety
                 if(it->takes > 0) {
                     LOG("    adding one lutprev past-the-post");
                     lutprev[it->takes] = lutprev[it->takes - 1] + previncr;
@@ -732,6 +754,8 @@ void main2(std::string const& fname)
                     LOG("    ....");
                 }
 
+                // save connections, because some stitches are technically "connected", but they
+                // don't draw lines. This is for computing weights and aligning stuff
                 LOG("     .....");
                 LOG("     Connecting to previous row, per takes and puts");
                 // connect to previous row
@@ -755,9 +779,12 @@ void main2(std::string const& fname)
                     auto& dot = rowdots[curri++];
                     dot.x = xcoord;
                     dot.y = ycoord;
-                    dot.skip = true;
+                    dot.skip = true; // these don't get rendered and don't affect layouting
                     dot.stitchRef = &*it;
-                    dot.disconnected = true;
+                    dot.disconnected = true; // these are not connected horizontally yet;
+                                             // technically they don't exist at all, you need
+                                             // to refer directly to its dotRef to get to the
+                                             // real stitch.
                     if(rowy > 0) {
                         // skip bindoffs or skips
                         while(!dots[rowy - 1][previ].stitchRef->IsCountable()) previ = previ + previncr;
@@ -766,20 +793,25 @@ void main2(std::string const& fname)
                         LOG("         which is a %s", dot.dotRef->stitchRef->key);
                         previ = previ + previncr;
                     } else {
-                        dot.dotRef = &dot;
+                        dot.dotRef = &dot; // become one's own stitch if there were none;
+                                           // this will probably break later, you ought to
+                                           // cast on enough stitches on row 0
                     }
 
                     // update xcoord
                     xcoord = xcoord + 9 * dxcoord;
                 }
             } else if(it->IsBroken()) {
-                LOG("broken, resetting 'first'");
-                first = true; // I guess we're done here?
-                // dot.disconnected = true;
-            }
+                // special stitch to create 2+ disconnected regions in the pattern
+                LOG("broken, resetting 'disconnected'");
+                disconnected = true; // I guess we're done here?
+            } // case normal/boundoff, slipped, broken
+            // advance stitching instructions
             ++it;
-        }
+        } // while(it)
 
+        // save how many dots we have on this row; recall we can't reallocate memory
+        // because of pointers; and I don't want to use shared pointers or linked lists
         numDots[rowy] = curri;
 
         // update previous row iterator;
@@ -805,7 +837,7 @@ void main2(std::string const& fname)
         }
 
         // move to next row
-        ycoord += 9;
+        ycoord += 9; // FIXME refactor font size out
     }
     LOG("");
     LOG("dots = ");
@@ -817,8 +849,10 @@ void main2(std::string const& fname)
         fprintf(stderr, "\n");
     }
 
-    LOG("Applying forces");
+    LOG("Computing layout");
     for(int rowy = 1; rowy < dots.size(); ++rowy) {
+        LOG("========================");
+        LOG("Processing row %d (%d@%d)", rowy, rows[rowy].number, rows[rowy].srcLine);
         // group continuous (unbroken) stitches
         int group_start = 0, group_end = 0, group_num = 0;
         while(group_end < numDots[rowy])
@@ -858,7 +892,7 @@ void main2(std::string const& fname)
                 force = force / denominator;
                 //fprintf(stderr, "\n");
                 int adj = int(round(force));
-                LOG("Force on line %d is %f ~=%d", rowy, force, adj);
+                LOG("Force on line %d (%d@%d) is %f ~=%d", rowy, rows[rowy].number, rows[rowy].srcLine, force, adj);
                 for(int rowx = group_start; rowx < group_end; ++rowx) {
                     //LOG("%d -> %d", dots[rowy][rowx].x, dots[rowy][rowx].x + adj);
                     dots[rowy][rowx].x += adj;
@@ -881,7 +915,7 @@ void main2(std::string const& fname)
     }
     LOG("");
 
-    LOG("Adjusting coordinates");
+    LOG("Adjusting virtual coordinates to PNG canvas");
     int minx = 32767, maxx = -32768;
     for(int rowy = 0; rowy < dots.size(); ++rowy) {
         for(int rowx = 0; rowx < numDots[rowy]; ++rowx) {
@@ -907,6 +941,7 @@ void main2(std::string const& fname)
         }
         fprintf(stderr, "\n");
     }
+    // number of pixels our chart takes horizontally
     int dotsExtent = maxx - minx;
 
     int canvasWidth = 3 * 9 /* 3 digits row number, reversed direction */
@@ -919,8 +954,11 @@ void main2(std::string const& fname)
     LOG("Populating canvas %d x %d", canvasWidth, canvasHeight);
     auto hcanvas = initCanvas(canvasWidth, canvasHeight);
 
+    // render everything; technically rendering is deferred such that
+    // markers are on top of lines on top of glyphs
     for(int rowy = 0; rowy < dots.size(); ++rowy) {
         // row counter
+        // you'd need to be mad to have more than 999
         std::string rown = std::to_string(rows[rowy].number);
         for(int z = 0; rows[rowy].number > 0 && z < rown.size(); ++z) {
             int x = 0;
@@ -933,6 +971,7 @@ void main2(std::string const& fname)
             drawGlyph(hcanvas, rown[rown.size() - 1 - z], BLACK, x, (2 + rows.size() - 1 - rowy) * 9 - 3);
         }
         // stitch count
+        // you'd need to be mad to have more than 999
         std::string stcnt = std::to_string(rows[rowy].CountNormal());
         drawGlyph(hcanvas, '(', BLACK, 3 * 9 + 9 + dotsExtent + 9 + 3 * 9 + 9 + (2 - stcnt.size()) * 9, (2 + rows.size() - 1 - rowy) * 9 - 3);
         for(int z = 0; z < stcnt.size(); ++z) {
@@ -949,6 +988,7 @@ void main2(std::string const& fname)
             if(!dot.skip && dot.stitchRef && dot.stitchRef->marker != NONE) {
                 drawMarker(hcanvas, dot.stitchRef->marker, dot.stitchRef->color, dot.x, dot.y);
             }
+            // EXCLAMATION markers, if any
             if(dot.markerLeft) {
                 LOG("Marker at %d x %d", dot.x - 4, dot.y);
                 drawMarker(hcanvas, EXCLAMATION, RED, dot.x - 4, dot.y);
@@ -962,10 +1002,12 @@ void main2(std::string const& fname)
                 int tx = lspec.dotRef->x;
                 int ty = lspec.dotRef->y;
                 if(lspec.otherDotRef != nullptr) {
+                    // MapEntry::INBETWEEN, we render inbetween two dots
                     tx = (lspec.dotRef->x + lspec.otherDotRef->x) / 2;
                     ty = (lspec.dotRef->y + lspec.otherDotRef->y) / 2;
                 }
                 drawLine(hcanvas, lspec.lineInfo->color, dot.x, dot.y, tx, ty);
+                // does the line have a marker?
                 if(lspec.lineInfo->marker != NONE) {
                     drawMarker(hcanvas, lspec.lineInfo->marker, lspec.lineInfo->color, (dot.x + tx) / 2, (dot.y + ty) / 2);
                 }
@@ -976,11 +1018,12 @@ void main2(std::string const& fname)
     // write out bitmap
     auto graphFname = fname + ".png"s;
     LOG("Writing %s", graphFname.c_str());
+    // technically the canvas only gets rendered here
     writeCanvas(hcanvas, graphFname.c_str());
     destroyCanvas(hcanvas);
 }
 
-static const char* FLAGS = "h";
+static const char* FLAGS = "h"; // so many options!
 void usage(const char* argv0)
 {
     printf("%s", reinterpret_cast<const char*>(u8"StitchGraph by Vlad Meșco\n\n"));
@@ -1009,7 +1052,6 @@ int main(int argc, char* argv[])
         std::string fname = argv[argvi];
         printf("Processing %s\n", fname.c_str());
         main2(fname);
-        printf("...done %s\n", fname.c_str());
     }
 
     // done-dee-done.

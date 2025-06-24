@@ -247,11 +247,11 @@ static int MARKERS[][5][5] = {
         { 0, 0, 1, 0, 0 },
     },
     { // BOBBLE
-        { 0, 0, 1, 0, 0 },
+        { 0, 0, 0, 0, 0 },
         { 0, 1, 1, 1, 0 },
         { 1, 0, 1, 0, 1 },
         { 0, 1, 1, 1, 0 },
-        { 0, 0, 1, 0, 0 },
+        { 0, 0, 0, 0, 0 },
     },
 };
 
@@ -387,21 +387,25 @@ void drawLine(void* hcanvas, Color color, int x0, int y0, int x1, int y1)
 
 void drawGlyph(void* hcanvas, char c, Color color, int x, int y)
 {
-    LOG("drawGlyph: %p %c %06X %d,%d", hcanvas, c, color, x, y);
+    static int counter = 0;
+    LOG("drawGlyph: %d %p %c %06X %d,%d", ++counter, hcanvas, c, color, x, y);
     auto* canvas = (Canvas*)hcanvas;
     assert(x >= 0 && x < canvas->w);
     assert(y >= 0 && y < canvas->h);
-    canvas->glyphs.emplace_back([=](){ _drawGlyph(hcanvas, c, color, x, y); });
+    int mycounter = counter;
+    canvas->glyphs.emplace_back([=](){ LOG("drawGlyph: %d executing", mycounter); _drawGlyph(hcanvas, c, color, x, y); });
 }
 
 void drawMarker(void* hcanvas, Marker marker, Color color, int x, int y)
 {
-    LOG("drawMarker: %p %d %06X %d,%d", hcanvas, marker, color, x, y);
+    static int counter = 0;
+    LOG("drawMarker: %d %p %d %06X %d,%d", ++counter, hcanvas, marker, color, x, y);
     if(marker == NONE) return;
     auto* canvas = (Canvas*)hcanvas;
     assert(x >= 0 && x < canvas->w);
     assert(y >= 0 && y < canvas->h);
-    canvas->markers.emplace_back([=](){ _drawMarker(hcanvas, marker, color, x, y); });
+    int mycounter = counter;
+    canvas->markers.emplace_back([=](){ LOG("drawMarker: %d executing", mycounter); _drawMarker(hcanvas, marker, color, x, y); });
 }
 
 void* initCanvas(int w, int h)

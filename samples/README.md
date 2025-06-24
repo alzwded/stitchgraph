@@ -227,6 +227,18 @@ p 28 turn # wrong side
 
 ![samples/simplest.png](simplest.png)
 
+# tfs
+
+```
+ch 8 turn
+| Tfs 6 || return
+| Tfs 6 || return
+| Tfs 6 || return
+bo 8
+```
+
+![samples/tfs.png](tfs.png)
+
 # tunisianx
 
 ```
