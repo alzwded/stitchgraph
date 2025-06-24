@@ -231,6 +231,7 @@ p 28 turn # wrong side
 
 ```
 ch 8 turn
+| Tss 6 || return
 | Tfs 6 || return
 | Tfs 6 || return
 | Tfs 6 || return
