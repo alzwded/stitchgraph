@@ -92,7 +92,7 @@ There is a "marker" (`!`) which can have letters glued to it (e.g. `!pm`, notice
 These are the available end-of-row instructions:
 
 - `turn`, which will continue the following row in the opposite direction;
-- `return` and `j`, which will continue the next row in the same direction. There is no functional difference between `return` and `j` (join), it's more for readability :-)
+- `return` and `j`, which will continue the next row in the same direction. There is no functional difference between `return` and `j` (join), it's more for readability :-) You can also just use `return` for knitting charts if every other row is just *"purl until end"*, saves space.
 
 How charts are built
 --------------------
