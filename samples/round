@@ -6,7 +6,7 @@
 5: s 36 join
 #6: s 18 !turn - 2 !return s 16 turn
 #7: s 16 !turn - 2 !return s 18 turn
-6: s 18 !turn  sk 2  !return s 16 turn
+6: s 18 !turn  sk 2 / !return s 16 turn
 7: s 16 !turn  /  !return s 18 turn
 8: s 18 ch 2 s 16 join
 9: s 18  s 18 join

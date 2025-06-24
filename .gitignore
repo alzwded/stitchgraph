@@ -1,5 +1,6 @@
 *.png
 !samples/*.png
+!nutests/*.png
 stitchgraph
 *.o
 __*

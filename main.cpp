@@ -778,8 +778,8 @@ int main(int argc, char* argv[])
                     xcoord = xcoord + 9 * dxcoord;
                 }
             } else if(it->IsBroken()) {
-                LOG("Breaks are not implemented! Dealing with row %d @ %d", row.number, row.srcLine);
-                abort();
+                LOG("broken, resetting 'first'");
+                first = true; // I guess we're done here?
                 // dot.disconnected = true;
             }
             ++it;
@@ -824,40 +824,58 @@ int main(int argc, char* argv[])
 
     LOG("Applying forces");
     for(int rowy = 1; rowy < dots.size(); ++rowy) {
-        // TODO group continuous chunks, c.f. BREAK
+        // group continuous (unbroken) stitches
+        int group_start = 0, group_end = 0, group_num = 0;
+        while(group_end < numDots[rowy])
+        {
+            ++group_num;
+            group_end = group_start + 1;
+            LOG("group_end = %d", group_end);
+            while(group_end < numDots[rowy] && !dots[rowy][group_end].disconnected) ++group_end;
 
-        float force = 0.f;
-        int denominator = 0;
-        for(int rowx = 0; rowx < numDots[rowy]; ++rowx) {
-            if(dots[rowy][rowx].skip) {
-                continue;
+            LOG("-------------------")
+            LOG("Group %d from %d to %d (out of %d)", group_num, group_start, group_end, numDots[rowy]);
+
+            float force = 0.f;
+            int denominator = 0;
+            for(int rowx = group_start; rowx < group_end; ++rowx) {
+                if(dots[rowy][rowx].skip) {
+                    continue;
+                }
+                float lforce = 0.f;
+                int ldenom = 0;
+                auto& self = dots[rowy][rowx];
+                float myX = self.x;
+                auto lineit = self.connectedTo.begin();
+                for(; lineit != self.connectedTo.end(); ++lineit)
+                {
+                    //fprintf(stderr, "%d... ", (*lineit)->x);
+                    lforce += (*lineit)->x;
+                    ldenom += 1;
+                }
+                if(ldenom == 0) continue;
+                force += lforce / ldenom - myX;
+                denominator += 1.f;
+                //fprintf(stderr, "%f ", lforce/ldenom - myX);
             }
-            float lforce = 0.f;
-            int ldenom = 0;
-            auto& self = dots[rowy][rowx];
-            float myX = self.x;
-            auto lineit = self.connectedTo.begin();
-            for(; lineit != self.connectedTo.end(); ++lineit)
+            if(denominator > 0)
             {
-                //fprintf(stderr, "%d... ", (*lineit)->x);
-                lforce += (*lineit)->x;
-                ldenom += 1;
+                force = force / denominator;
+                //fprintf(stderr, "\n");
+                int adj = int(round(force));
+                LOG("Force on line %d is %f ~=%d", rowy, force, adj);
+                for(int rowx = group_start; rowx < group_end; ++rowx) {
+                    //LOG("%d -> %d", dots[rowy][rowx].x, dots[rowy][rowx].x + adj);
+                    dots[rowy][rowx].x += adj;
+                }
             }
-            if(ldenom == 0) continue;
-            force += lforce / ldenom - myX;
-            denominator += 1.f;
-            //fprintf(stderr, "%f ", lforce/ldenom - myX);
-        }
-        if(denominator == 0) continue;
-        force = force / denominator;
-        //fprintf(stderr, "\n");
-        int adj = int(round(force));
-        LOG("Force on line %d is %f ~=%d", rowy, force, adj);
-        for(int rowx = 0; rowx < numDots[rowy]; ++rowx) {
-            //LOG("%d -> %d", dots[rowy][rowx].x, dots[rowy][rowx].x + adj);
-            dots[rowy][rowx].x += adj;
+
+            // to next group!
+            group_start = group_end;
+            LOG("group_start = %d", group_start);
         }
     }
+    LOG("--------------------");
     LOG("dots = ");
     for(int rowy = 0; rowy < dots.size(); ++rowy) {
         for(int rowx = 0; rowx < numDots[rowy]; ++rowx) {
