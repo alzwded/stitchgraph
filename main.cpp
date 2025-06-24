@@ -203,6 +203,8 @@ struct Dot
     std::list<Dot*> connectedTo; // for weight calculation
     Dot* dotRef = nullptr; // this stitch was slipped up / was a short row, so we reference a dot faaar below
     bool disconnected = false;
+    bool markerLeft = false;
+    bool markerRight = false;
 };
 
 Row parse_row(std::string const& insline)
@@ -306,6 +308,7 @@ Row parse_row(std::string const& insline)
             if(!rval.stitches.empty()) {
                 rval.stitches.back().markerAfter = true;
                 LOG("...adding marker after");
+                marker = false;
             } else {
                 LOG("...marker is at begning of line");
             }
@@ -649,6 +652,27 @@ int main(int argc, char* argv[])
                     xcoord = xcoord + 9 * dxcoord;
                 }
 
+                if(it->markerBefore) {
+                    LOG("    marker before");
+                    if(row.reversed) {
+                        LOG("          adding marker left on %d", curri - it->puts);
+                        rowdots[curri - it->puts].markerLeft = true;
+                    } else {
+                        LOG("          adding marker right on %d", curri - it->puts);
+                        rowdots[curri - it->puts].markerRight = true;
+                    }
+                }
+                if(it->markerAfter) {
+                    LOG("    marker after");
+                    if(row.reversed) {
+                        LOG("          adding marker right");
+                        rowdots[curri - 1].markerRight = true;
+                    } else {
+                        LOG("          adding marker left");
+                        rowdots[curri - 1].markerLeft = true;
+                    }
+                }
+
                 // take from previous row
                 // translate src and dst, keeping direction in mind
                 if(it->takes > 9 ) {
@@ -858,7 +882,7 @@ int main(int argc, char* argv[])
     for(int rowy = 0; rowy < dots.size(); ++rowy) {
         for(int rowx = 0; rowx < dots[rowy].size(); ++rowx) {
             auto& dot = dots[rowy][rowx];
-            dot.x = dot.x - minx + 3 * 9 /*row number*/ + 3 /* whitespace padding */;
+            dot.x = dot.x - minx + 3 * 9 /*row number*/ + 9 /* whitespace padding */;
             dot.y = canvasHeight - 9 - dot.y;
         }
     }
@@ -873,9 +897,9 @@ int main(int argc, char* argv[])
     int dotsExtent = maxx - minx;
 
     int canvasWidth = 3 * 9 /* 3 digits row number, reversed direction */
-                    + 3 /* whitespace padding */
+                    + 9 /* whitespace padding */
                     + dotsExtent /* longest row */ 
-                    + 3 /* whitespace padding */
+                    + 9 /* whitespace padding */
                     + 3 * 9 /* 3 digits row number, forward direction */
                     + 5 * 9 /* space for stitch count, 2 parens, 3 digits */
                     ;
@@ -889,7 +913,7 @@ int main(int argc, char* argv[])
             int x = 0;
             if(!rows[rowy].reversed) {
                 x = (rown.size() - 1 - z) * 9;
-                x += dotsExtent + 3 * 9 + 3 + 3;
+                x += dotsExtent + 3 * 9 + 9 + 9;
             } else {
                 x = (2 - z) * 9;
             }
@@ -897,20 +921,28 @@ int main(int argc, char* argv[])
         }
         // stitch count
         std::string stcnt = std::to_string(rows[rowy].CountNormal());
-        drawGlyph(hcanvas, '(', BLACK, 3 * 9 + 3 + dotsExtent + 3 + 3 * 9 + 9 + (2 - stcnt.size()) * 9, (2 + rows.size() - 1 - rowy) * 9 - 3);
+        drawGlyph(hcanvas, '(', BLACK, 3 * 9 + 9 + dotsExtent + 9 + 3 * 9 + 9 + (2 - stcnt.size()) * 9, (2 + rows.size() - 1 - rowy) * 9 - 3);
         for(int z = 0; z < stcnt.size(); ++z) {
             int x = 0;
-            x = 3 * 9 + 3 + dotsExtent + 3 + 3 * 9 + 9 + 9 + z * 9 + (2 - stcnt.size()) * 9;
+            x = 3 * 9 + 9 + dotsExtent + 9 + 3 * 9 + 9 + 9 + z * 9 + (2 - stcnt.size()) * 9;
             drawGlyph(hcanvas, stcnt[z], BLACK, x, (2 + rows.size() - 1 - rowy) * 9 - 3);
         }
-        drawGlyph(hcanvas, ')', BLACK, 3 * 9 + 3 + dotsExtent + 3 + 3 * 9 + 4 * 9, (2 + rows.size() - 1 - rowy) * 9 - 3);
+        drawGlyph(hcanvas, ')', BLACK, 3 * 9 + 9 + dotsExtent + 9 + 3 * 9 + 4 * 9, (2 + rows.size() - 1 - rowy) * 9 - 3);
 
         // stitches proper
-        for(int rowx = 0; rowx < dots[rowy].size(); ++rowx) {
+        for(int rowx = 0; rowx < numDots[rowy]; ++rowx) {
             auto& dot = dots[rowy][rowx];
             // stitch knot itself
             if(!dot.skip && dot.stitchRef && dot.stitchRef->marker != NONE) {
                 drawMarker(hcanvas, dot.stitchRef->marker, dot.stitchRef->color, dot.x, dot.y);
+            }
+            if(dot.markerLeft) {
+                LOG("Marker at %d x %d", dot.x - 4, dot.y);
+                drawMarker(hcanvas, EXCLAMATION, RED, dot.x - 4, dot.y);
+            }
+            if(dot.markerRight) {
+                LOG("Marker at %d x %d", dot.x + 5, dot.y);
+                drawMarker(hcanvas, EXCLAMATION, RED, dot.x + 5, dot.y);
             }
             // connections
             for(auto&& lspec : dot.lines) {

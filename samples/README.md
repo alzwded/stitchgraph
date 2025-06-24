@@ -64,3 +64,109 @@ bo 8
 
 ![samples/edge.png](edge.png)
 
+# fan\_and\_split
+
+```
+co 10 turn
+k 10 turn
+p 1 * yo 1 p 1 * 9 turn
+k 19 turn
+p 19 turn
+k 4 bo 11 k 4 turn
+p 4 / p 4 turn
+k 1 k2tog 1 k 1 / k 1 SSK 1 k 1 turn
+p 1 p2tog 1 / SSP 1 p 1 turn
+k2tog 1 / SSK 1 turn
+bo 1 / bo 1
+```
+
+![samples/fan\_and\_split.png](fan_and_split.png)
+
+# incs
+
+```
+co 8 turn
+1: k 8 turn
+2: p 8 turn
+3: pu 1 k 1 * k 1 M 1 k 1 * 2 k 2 turn
+4: p 10 turn
+5: pu 1 * k 1 k2tog 1 k 1 * 2 k 1 turn
+6: p 8 !warn turn
+
+7: k 3 M 1 k 2 M 1 k 3 return
+8: k 3 M 1 k 4 M 1 k 3 return
+9: k 2 CDD 1 k 2 CDD 1 k 2 return
+
+bo 8
+```
+
+![samples/incs.png](incs.png)
+
+# lace
+
+```
+co 14 turn
+k 14 turn
+p 14 turn
+k 1 * yo 1 k2tog 1 k 1 SSK 1 yo 1 k 1 * 2 k 1 turn
+p 14 turn
+k 1 * SSK 1 yo 1 k 1 yo 1 k2tog 1 k 1 * 2 k 1 turn
+p 14 turn
+k 14 turn
+bo 14
+```
+
+![samples/lace.png](lace.png)
+
+# markers
+
+```
+co 8 turn
+pu 1 k 1 !B k 4 !A k 2 turn
+pu 1 p 1 !b p 4 !A p 2 !pattern-change turn
+!pattern-change pu 1 * p 1 k 1 * 3 p 1 turn
+pu 1 * p 1 k 1 * 3 p 1 turn
+```
+
+![samples/markers.png](markers.png)
+
+# round
+
+```
+   ch 7 !air ch 3 !join-with-self ch 6 join
+1: 3s 1 s 6 sk 1 3s 1 sk 1 s 6 join
+2: [ 2s 3 s 6 ] 2 join
+3: [ * 2s 1 s 1 * 3 s 6 ] 2 join
+4: [ * 2s 1 s 2 * 3 s 6 ] 2 join
+5: s 36 join
+#6: s 18 !turn - 2 !return s 16 turn
+#7: s 16 !turn - 2 !return s 18 turn
+6: s 18 !turn  sk 2  !return s 16 turn
+7: s 16 !turn  sk 2  !return s 18 turn
+8: s 18 ch 2 s 16 join
+9: s 18  s 18 join
+10: * s2tog 1 s 2 * 3 s 6    * s2tog 1 s 2 * 3 s 6 join
+```
+
+![samples/round.png](round.png)
+
+# tunisianx
+
+```
+co 10 turn
+ 1: | 10 return
+ 2: | 1 Xss 4 || 1 return
+ 3: | 1 Tss 1 Xss 3 Tss 1 || 1 return
+ 4: | 1 Xss 4 || 1 return
+ 5: | 1 Tss 1 Xss 3 Tss 1 || 1 return
+ 6: | 1 Xss 4 || 1
+ 7: | 1 Tss 1 Xss 3 Tss 1 || 1
+ 8: | 1 Xss 4 || 1
+ 9: | 1 Tss 1 Xss 3 Tss 1 || 1
+10: | 1 Tss 1 || 1  - 4      | 1  Tss 1 || 1
+11: | 1 Tss 1 || 1  - 4      | 1  Tss 1 || 1
+12: bo 3 - 4 bo 3
+```
+
+![samples/tunisianx.png](tunisianx.png)
+

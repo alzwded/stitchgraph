@@ -5,3 +5,4 @@ stitchgraph
 __*
 *log*
 *.core
+*.fail

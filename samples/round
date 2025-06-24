@@ -4,8 +4,10 @@
 3: [ * 2s 1 s 1 * 3 s 6 ] 2 join
 4: [ * 2s 1 s 2 * 3 s 6 ] 2 join
 5: s 36 join
-6: s 18 !turn - 2 !return s 16 turn
-7: s 16 !turn - 2 !return s 18 turn
+#6: s 18 !turn - 2 !return s 16 turn
+#7: s 16 !turn - 2 !return s 18 turn
+6: s 18 !turn  sk 2  !return s 16 turn
+7: s 16 !turn  /  !return s 18 turn
 8: s 18 ch 2 s 16 join
 9: s 18  s 18 join
 10: * s2tog 1 s 2 * 3 s 6    * s2tog 1 s 2 * 3 s 6 join

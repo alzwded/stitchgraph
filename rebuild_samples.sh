@@ -2,7 +2,8 @@
 
 fail() {
     echo "${1-failed}"
-    exit 2
+    touch "$1.fail"
+    #exit 2
 }
 
 make || fail 'failed to build'
