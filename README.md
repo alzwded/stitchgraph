@@ -7,6 +7,14 @@ It mostly renders as-if you drew the pattern out on graph paper (in full), but i
 
 The way it works is you give it stitching instructions and it follows them.
 
+Here's an attention grabbing image:
+
+![nutests/edge.png](edge.png)
+
+See [samples](./samples/README.md).
+
+Gawrsh, I hope the above image isn't broken because that would be embarrassing!
+
 Building and Running
 ====================
 
@@ -26,7 +34,7 @@ After that, run `make` in the root directory of the thing you got (via Git or do
 Running
 -------
 
-`./stitchgraph pattern_file` will produce `pattern_file.png` which you can oggle at.
+`./stitchgraph pattern_file` will produce `pattern_file.png` which you can ogle at.
 
 What's a *pattern file*? Read below.
 
