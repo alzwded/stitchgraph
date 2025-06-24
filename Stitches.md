@@ -189,7 +189,6 @@
 - takes: 0
 - puts:  1
 - marker: ARROWDOWN
-- map: (0 <- 0) 
 
 ## `mr`
 

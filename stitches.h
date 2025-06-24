@@ -229,9 +229,6 @@ static std::vector<Stitch> STITCHES {
             "ma", "make 1 air", Stitch::N,
             0, 1,
             ARROWDOWN, GREEN,
-            {
-                { 0, 0, GREEN }
-            }
         },
         {
             "mr", "make 1 right", Stitch::N,
