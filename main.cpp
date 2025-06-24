@@ -826,7 +826,7 @@ void main2(std::string const& fname)
             ++group_num;
             group_end = group_start + 1;
             LOG("group_end = %d", group_end);
-            while(group_end < numDots[rowy] && !dots[rowy][group_end].disconnected) ++group_end;
+            while(group_end < numDots[rowy] && !dots[rowy][group_end].dotRef->disconnected) ++group_end;
 
             LOG("-------------------")
             LOG("Group %d from %d to %d (out of %d)", group_num, group_start, group_end, numDots[rowy]);
