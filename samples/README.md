@@ -72,7 +72,7 @@ k 10 turn
 p 1 * yo 1 p 1 * 9 turn
 k 19 turn
 p 19 turn
-k 4 bo 11 / k 4 turn
+k 4 / bo 11 k 4 turn
 p 4 / p 4 turn
 k 1 k2tog 1 k 1 / k 1 SSK 1 k 1 turn
 p 1 p2tog 1 / SSP 1 p 1 turn
@@ -255,7 +255,7 @@ co 10 turn
  9: | 1 Tss 1 Xss 3 Tss 1 || 1
 10: | 1 Tss 1 || 1  / bo 4       | 1  Tss 1 || 1
 11: | 1 Tss 1 || 1  /            | 1  Tss 1 || 1
-12: bo 3 / bo 3
+12: bo 3            /            bo 3
 ```
 
 ![samples/tunisianx.png](tunisianx.png)
