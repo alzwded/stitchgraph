@@ -2,9 +2,12 @@
 
 fail() {
     echo "${1-failed}"
-    touch "$1.fail"
     if [ ${2-0} -gt 0 ] ; then
+        # exit entirely
         exit $2
+    else
+        # mark failure but don't exit
+        touch "$1.fail"
     fi
 }
 
@@ -33,4 +36,5 @@ for i in samples/*.png ; do
     } >> samples/README.md
 done
 
-ls samples/*.fail
+ls samples/*.fail && exit 1
+exit 0
