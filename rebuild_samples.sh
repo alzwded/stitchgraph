@@ -3,10 +3,12 @@
 fail() {
     echo "${1-failed}"
     touch "$1.fail"
-    #exit 2
+    if [ ${2-0} -gt 0 ] ; then
+        exit $2
+    fi
 }
 
-make || fail 'failed to build'
+make || fail 'failed to build' 2
 
 rm -f samples/README.md
 touch samples/README.md
