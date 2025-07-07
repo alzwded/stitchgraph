@@ -1,3 +1,11 @@
+# StitchGraph examples
+
+This directory contains samples of what StitchGraph can do.
+
+See [the main README.md](../README.md) for general information.
+
+See [Stitches.md](../Stitches.md) for stitches available in this version.
+
 # ball
 
 ```

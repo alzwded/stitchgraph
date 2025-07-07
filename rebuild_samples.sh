@@ -16,6 +16,17 @@ make || fail 'failed to build' 2
 rm -f samples/README.md
 touch samples/README.md
 
+cat <<EOT >samples/README.md
+# StitchGraph examples
+
+This directory contains samples of what StitchGraph can do.
+
+See [the main README.md](../README.md) for general information.
+
+See [Stitches.md](../Stitches.md) for stitches available in this version.
+
+EOT
+
 rm -f samples/*.fail
 
 for i in samples/*.png ; do
