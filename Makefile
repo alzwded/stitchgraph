@@ -1,4 +1,4 @@
-CXXFLAGS ?= -O2
+CXXFLAGS ?= -O3 -march=native
 CXXFLAGS += -Wall -Wno-sign-compare -I. --std=c++20 ` pkg-config --cflags libpng `
 
 OBJS = main.o draw.o
