@@ -1,3 +1,5 @@
+# test out that markers get placed where they should
+
 co 8 turn
 pu 1 k 1 !B k 4 !A k 2 turn
 pu 1 p 1 !b p 4 !A p 2 !pattern-change turn

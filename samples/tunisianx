@@ -1,3 +1,5 @@
+# test out the break stitch in a tunisian context and implied return/join
+
 co 10 turn
  1: | 10 return
  2: | 1 Xss 4 || 1 return
@@ -8,6 +10,7 @@ co 10 turn
  7: | 1 Tss 1 Xss 3 Tss 1 || 1
  8: | 1 Xss 4 || 1
  9: | 1 Tss 1 Xss 3 Tss 1 || 1
-10: | 1 Tss 1 || 1  / bo 4       | 1  Tss 1 || 1
-11: | 1 Tss 1 || 1  /            | 1  Tss 1 || 1
-12: bo 3            /            bo 3
+ # split off, join new yarn
+10: | 1 Tss 1 || 1 ! / bo 4       | 1  Tss 1 || 1
+11: | 1 Tss 1 || 1   /            | 1  Tss 1 || 1
+12: bo 3             /            bo 3

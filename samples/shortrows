@@ -1,3 +1,5 @@
+# test out knit short rows
+
 co 8 turn
 pu  k  !B k 4 !A k 2 turn
 pu  p  !b p 4 !A p 2 !pattern-change turn

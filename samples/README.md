@@ -1,6 +1,8 @@
 # ball
 
 ```
+# Basic crochet ball
+
 ch 1 turn
 1: 6s 1 join
 2: 2s 6 join
@@ -29,6 +31,8 @@ ch 1 turn
 # edge
 
 ```
+# Edge lace
+
 co 8 turn
 1: pu 1 k 2 yo 1 k2tog 1 k 1 yo 2 k 2 turn
 2: pu 1 k 2 p 1 k 3 yo 1 k2tog 1 k 1 turn
@@ -67,6 +71,8 @@ bo 8
 # fan\_and\_split
 
 ```
+# test out the `break` stitch, e.g. to split off two shoulder halfs or v-neck
+
 co 10 turn
 k 10 turn
 p 1 * yo 1 p 1 * 9 turn
@@ -85,6 +91,8 @@ bo 1 / bo 1
 # incs
 
 ```
+# test out increases
+
 co 8 turn
 1: k 8 turn
 2: p 8 turn
@@ -105,6 +113,8 @@ bo 8
 # incs\_simple
 
 ```
+# test out increases
+
 co 8 turn
 1: k 8 turn
 2: p 8 turn
@@ -141,6 +151,8 @@ bo 14
 # markers\_simple
 
 ```
+# test out that markers get placed where they should
+
 co 8 turn
 pu 1 k 1 !B k 4 !A k 2 turn
 pu 1 p 1 !b p 4 !A p 2 !pattern-change turn
@@ -153,6 +165,8 @@ pu 1 * p 1 k 1 * 3 p 1 turn
 # round
 
 ```
+# test out a big ball with a vertical slit in the middle, requiring a sudden change in direction
+
    ch 7 !air ch 3 !join-with-self ch 6 join
 1: 3s 1 s 6 sk 1 3s 1 sk 1 s 6 join
 2: [ 2s 3 s 6 ] 2 join
@@ -171,6 +185,8 @@ pu 1 * p 1 k 1 * 3 p 1 turn
 # shortrows
 
 ```
+# test out knit short rows
+
 co 8 turn
 pu  k  !B k 4 !A k 2 turn
 pu  p  !b p 4 !A p 2 !pattern-change turn
@@ -199,6 +215,7 @@ pu 1 * p 1 k 1 * 3 p 1 turn
 # shorttun
 
 ```
+# Short Rows when using return/join
 
 # round / tunisian
 30: co 8 turn
@@ -244,6 +261,8 @@ p 28 turn # wrong side
 # tfs
 
 ```
+# test rendering of glyphs on lines
+
 ch 8 turn
 | Tss 6 || return
 | Tfs 6 || return
@@ -257,6 +276,8 @@ bo 8
 # tunisianx
 
 ```
+# test out the break stitch in a tunisian context and implied return/join
+
 co 10 turn
  1: | 10 return
  2: | 1 Xss 4 || 1 return
@@ -267,9 +288,10 @@ co 10 turn
  7: | 1 Tss 1 Xss 3 Tss 1 || 1
  8: | 1 Xss 4 || 1
  9: | 1 Tss 1 Xss 3 Tss 1 || 1
-10: | 1 Tss 1 || 1  / bo 4       | 1  Tss 1 || 1
-11: | 1 Tss 1 || 1  /            | 1  Tss 1 || 1
-12: bo 3            /            bo 3
+ # split off, join new yarn
+10: | 1 Tss 1 || 1 ! / bo 4       | 1  Tss 1 || 1
+11: | 1 Tss 1 || 1   /            | 1  Tss 1 || 1
+12: bo 3             /            bo 3
 ```
 
 ![samples/tunisianx.png](tunisianx.png)

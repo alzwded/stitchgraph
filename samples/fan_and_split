@@ -1,3 +1,5 @@
+# test out the `break` stitch, e.g. to split off two shoulder halfs or v-neck
+
 co 10 turn
 k 10 turn
 p 1 * yo 1 p 1 * 9 turn

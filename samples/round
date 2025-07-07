@@ -1,3 +1,5 @@
+# test out a big ball with a vertical slit in the middle, requiring a sudden change in direction
+
    ch 7 !air ch 3 !join-with-self ch 6 join
 1: 3s 1 s 6 sk 1 3s 1 sk 1 s 6 join
 2: [ 2s 3 s 6 ] 2 join
