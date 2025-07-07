@@ -51,8 +51,8 @@ struct Row
     typedef Stitch VALUE_TYPE;
     struct Iterator {
         Row& row;
-        int incr;
-        int at;
+        ssize_t incr;
+        ssize_t at;
         Iterator(Row& _row, int _incr, int _at)
             : row(_row)
             , incr(_incr)
@@ -489,7 +489,6 @@ void process_stitch_file(std::string const& fname)
             }
             if(rows[i].turn && i < rows.size() - 1) {
                 LOG("This line turns, so we need to add %d stitches on the next row as well", delta);
-                bool nextReversed = !reversed;
                 atEnd = false;
                 if(atEnd) {
                     for(int j = 0; j < delta; ++j) {
@@ -613,7 +612,7 @@ void process_stitch_file(std::string const& fname)
         while(it) {
             LOG("-----------------------------------------------");
             LOG("Stitching at curri=%d (%d x %d) which is a %s", curri, xcoord, ycoord, it->key);
-            LOG("        it at=%d incr=%d", it.at, it.incr);
+            LOG("        it at=%zd incr=%zd", it.at, it.incr);
             LOG("        xcoord = %d", xcoord);
             if(rowy > 0) {
                 LOG("        The previous row has %d (or %d) stitches left, previ = %d", numDots[rowy - 1] - previ, previ, previ);
@@ -633,11 +632,10 @@ void process_stitch_file(std::string const& fname)
                     // construct new stitches
                     if(!disconnected) {
                         // connect to previous stitch
-                        if(ii == 0 && (it - 1)->IsNormal() || (it - 1)->IsBoundOff()
-                                || ii > 0)
-                        {
-                            //LOG("...connecting to %d", curri - 2 - ii);
-                            //auto& prevDot = rowdots[curri - 2 - ii];
+                        if(        (ii == 0 && (it - 1)->IsNormal() /* first stitch of the chunk is connected to normal stitches unless someone threw in a disconnect (/) */)
+                                || (ii == 0 && (curri - 2 >= 0) && (rowdots[curri - 2].stitchRef->IsBoundOff() || rowdots[curri - 2].stitchRef->IsNormal()) /* first stitch of the chunk may also be connected to bind-offs that generate a stitch (bo) or to whatever came before the a skip (sk) */)
+                                || (ii > 0 /* subsequent stitches in this batch are connected to each other */)
+                        ) {
                             LOG("...connecting to %d", curri - 2);
                             auto& prevDot = rowdots[curri - 2];
                             dot.lines.emplace_back();
@@ -645,7 +643,7 @@ void process_stitch_file(std::string const& fname)
                             dot.lines.back().otherDotRef = nullptr;
                             dot.lines.back().lineInfo = &connectingStitch;
                         }
-                        else // previous stitch was a break or a bind off, so we can't connect to it
+                        else // previous stitch was a break or an unrenderable bind off, so we can't connect to it
                         {
                             disconnected = false;
                             dot.disconnected = true;
@@ -1030,7 +1028,7 @@ void usage(const char* argv0)
 }
 int main(int argc, char* argv[])
 {
-    int flags, opt;
+    int opt;
     char* argv0 = strdup(argv[0]);
 
     while((opt = getopt(argc, argv, FLAGS)) != -1) {
@@ -1045,6 +1043,7 @@ int main(int argc, char* argv[])
     }
 
     if(optind >= argc) usage(argv0);
+    free(argv0);
 
     for(int argvi = optind; argvi < argc; ++argvi) {
         std::string fname = argv[argvi];

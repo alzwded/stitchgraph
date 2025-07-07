@@ -1,5 +1,5 @@
-CXXFLAGS ?= -g
-CXXFLAGS += -I. --std=c++20 ` pkg-config --cflags libpng `
+CXXFLAGS ?= -O2
+CXXFLAGS += -Wall -Wno-sign-compare -I. --std=c++20 ` pkg-config --cflags libpng `
 
 OBJS = main.o draw.o
 
@@ -7,6 +7,9 @@ all: stitchgraph Stitches.md
 
 stitchgraph: $(OBJS)
 	c++ -o $@ $(OBJS) ` pkg-config --libs libpng `
+
+memcheck:
+	./memcheck.sh
 
 Stitches.md: build_stitches_md
 	./build_stitches_md

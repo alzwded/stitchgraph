@@ -8,3 +8,4 @@ __*
 *log*
 *.core
 *.fail
+*.out
