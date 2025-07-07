@@ -41,8 +41,8 @@ struct Stitch
     Marker marker = DOT;
     Color color = BLACK;
     std::vector<MapEntry> map = {};
-    bool markerBefore = false;
-    bool markerAfter = false;
+    bool markerBefore = false; // only used at runtime to keep track of where a ! marker is attached
+    bool markerAfter = false; // only used at runtime to keep track of where a ! marker is attached
 
     bool IsNormal() const { return special == N; }
     bool IsSlipped() const { return special == P; }
@@ -53,6 +53,8 @@ struct Stitch
     bool IsCountable() const { return special == N || special == P; }
 };
 
+// This is a prototype library, make a copy to use at runtime
+// TODO refactor the instance-specific fields (markerBAefftoere) out of the common base
 static std::vector<Stitch> STITCHES {
     // BLUE vertical stitches are below
 #define BLANK_STITCH_INDEX 0

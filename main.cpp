@@ -165,35 +165,33 @@ struct Row
         return Iterator(it);
     }
 
-    // TODO just templatize this BS
+    // used for running count, i.e. (8) at end of line in rendering
     size_t CountNormal() {
         return std::accumulate(stitches.begin(), stitches.end(), size_t(0), [](size_t acc, decltype(stitches)::const_reference e) -> size_t {
                 //LOG("%d %d %s", e.puts, e.takes, e.blank ? "blank" : "");
                 return acc + e.puts * size_t(e.IsNormal());
                 });
     }
-
+    // Used for counting how many new stitches are put, for validating we haven't "taken" more than we had on the previous line
     size_t CountMade() {
         return std::accumulate(stitches.begin(), stitches.end(), size_t(0), [](size_t acc, decltype(stitches)::const_reference e) -> size_t {
                 //LOG("%d %d %s", e.puts, e.takes, e.blank ? "blank" : "");
                 return acc + e.puts * size_t(e.IsMade());
                 });
     }
+    // Used for sanity check and for layouting
     size_t CountTaken() {
         return std::accumulate(stitches.begin(), stitches.end(), size_t(0), [](size_t acc, decltype(stitches)::const_reference e) -> size_t {
                 return acc + e.takes;
                 });
     }
+    // Used for sanity check and for layouting
     size_t CountStitchable() {
         return std::accumulate(stitches.begin(), stitches.end(), size_t(0), [](size_t acc, decltype(stitches)::const_reference e) -> size_t {
                 return acc + e.puts * size_t(e.IsCountable());
                 });
     }
-    size_t CountRenderable() {
-        return std::accumulate(stitches.begin(), stitches.end(), size_t(0), [](size_t acc, decltype(stitches)::const_reference e) -> size_t {
-                return acc + e.puts * size_t(e.IsNormal() || e.IsSlipped() || e.IsBoundOff());
-                });
-    }
+    // Used to determine how much memory we need to allocate for the dot grid; dots which aren't rendered (e.g. break '/') still have to live somewhere
     size_t CountLiterallyAllPuts() {
         return std::accumulate(stitches.begin(), stitches.end(), size_t(0), [](size_t acc, decltype(stitches)::const_reference e) -> size_t {
                 return acc + e.puts;
@@ -374,7 +372,7 @@ Row parse_row(std::string const& insline)
                 // insert our stitches
                 LOG("...Putting stitch %s %d times", STITCHES[i].key, rep);
                 for(int n = 0; n < rep; ++n) {
-                    rval.stitches.push_back(STITCHES[i]);
+                    rval.stitches.push_back(STITCHES[i]); // make a copy!
                     if(marker) {
                         LOG("...putting marker before first stitch");
                         rval.stitches.back().markerBefore = true;
@@ -394,7 +392,7 @@ Row parse_row(std::string const& insline)
 }
 
 // Process one stitch file and produce one PNG file
-void main2(std::string const& fname)
+void process_stitch_file(std::string const& fname)
 {
     std::fstream fin(fname, std::ios::in);
 
@@ -1051,7 +1049,7 @@ int main(int argc, char* argv[])
     for(int argvi = optind; argvi < argc; ++argvi) {
         std::string fname = argv[argvi];
         printf("Processing %s\n", fname.c_str());
-        main2(fname);
+        process_stitch_file(fname);
     }
 
     // done-dee-done.

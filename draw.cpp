@@ -15,8 +15,10 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS “AS IS” 
 #include <cstdlib>
 #include <cassert>
 #include <cmath>
+#include <errno.h>
 #include <functional>
-#include <vector>
+#include <list>
+#include <string.h>
 #include <png.h>
 
 #define LOG(fmt, ...) fprintf(stderr, "%s@%s:%d: " fmt "\n", __func__, __FILE__, __LINE__ __VA_OPT__(,) __VA_ARGS__);
@@ -160,6 +162,7 @@ static int FONT[][9][9] = {
         { 0, 1, 0, 0, 0, 0, 0, 0, 0 },
     }
 };
+static_assert(sizeof(SUPPORTED)/sizeof(SUPPORTED[0]) == sizeof(FONT)/sizeof(FONT[0]), "Size of supported characters and their font definition differ");
 
 static int MARKERS[][5][5] = {
     { // DOT
@@ -254,7 +257,9 @@ static int MARKERS[][5][5] = {
         { 0, 0, 0, 0, 0 },
     },
 };
+static_assert(ALWAYS_LAST_MARKER == sizeof(MARKERS)/sizeof(MARKERS[0]), "Size mismatch between MARKER enum and MARKERS font definition");
 
+// unpack an int-packed RGB value into its components
 struct RGB {
     uint8_t r, g, b;
 
@@ -266,16 +271,21 @@ struct RGB {
 };
 
 struct Canvas {
-    int w, h;
-    png_bytep *rows;
-    png_structp png_ptr;
-    png_infop info_ptr;
-    FILE* fp;
-    std::vector<std::function<void(void)>> glyphs;
-    std::vector<std::function<void(void)>> lines;
-    std::vector<std::function<void(void)>> markers;
+    int w, h; // width and height
+    png_bytep *rows; // PNG row data (IDAT)
+    png_structp png_ptr; // PNG write struct
+    png_infop info_ptr; // PNG info struct (other headers)
+
+    // deferred rendering; markers over lines over glyphs, that's
+    // not necessarily the order the caller will provide;
+    // lines are slightly antialiased, so they are additive;
+    // glyphs and markers are blt'd (on paper, at least)
+    std::list<std::function<void(void)>> glyphs;
+    std::list<std::function<void(void)>> lines;
+    std::list<std::function<void(void)>> markers;
 };
 
+// additively draw an antialiased line
 void _drawLine(void* hcanvas, Color color, int x0, int y0, int x1, int y1)
 {
     auto* canvas = (Canvas*)hcanvas;
@@ -414,7 +424,6 @@ void* initCanvas(int w, int h)
     canvas->w = w;
     canvas->h = h;
     LOG("initCanvas: %p %d x %d", canvas, w, h);
-    canvas->fp = NULL;
     canvas->png_ptr = png_create_write_struct(PNG_LIBPNG_VER_STRING, NULL, NULL, NULL);
     canvas->info_ptr = png_create_info_struct(canvas->png_ptr);
     png_set_IHDR(canvas->png_ptr, canvas->info_ptr, canvas->w, canvas->h,
@@ -438,7 +447,6 @@ void destroyCanvas(void* hcanvas)
         free(canvas->rows[i]);
     }
     free(canvas->rows);
-    if(canvas->fp) fclose(canvas->fp);
     delete canvas;
 }
 
@@ -452,8 +460,12 @@ void writeCanvas(void* hcanvas, const char* fname)
     for(auto&& marker : canvas->markers) marker();
 
     //if(setjmp(png_jmpbuf(png_ptr))); TODO
-    if(canvas->fp) fclose(canvas->fp); // TODO
-    canvas->fp = fopen(fname, "wb");
-    png_init_io(canvas->png_ptr, canvas->fp);
+    FILE* fp = fopen(fname, "wb");
+    if(!fp) {
+        LOG("failed to open %s for writing: %s\n", fname, strerror(errno));
+        abort();
+    }
+    png_init_io(canvas->png_ptr, fp);
     png_write_png(canvas->png_ptr, canvas->info_ptr, PNG_TRANSFORM_IDENTITY, NULL);
+    fclose(fp);
 }

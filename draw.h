@@ -14,11 +14,17 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS “AS IS” 
 
 #include "common.h"
 
+[[nodiscard("return value must be freed with destroyCanvas")]]
 extern void* initCanvas(int w, int h);
+// additively draw an antialiased 1px wide line from x0,y0 to x1,y1
 extern void drawLine(void*, Color color, int x0, int y0, int x1, int y1);
+// draw a 5x5 marker centered at x,y
 extern void drawMarker(void*, Marker marker, Color color, int x, int y);
+// draw a 9x9 font glyph at x,y going down-right
 extern void drawGlyph(void*, char c, Color color, int left, int top);
+// save canvas to disk
 extern void writeCanvas(void*, const char* fname);
+// free memory allocated by initCanvas()
 extern void destroyCanvas(void*);
 
 #endif

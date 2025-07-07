@@ -35,6 +35,8 @@ enum Marker {
     ARROWLEFT = 10,
     ARROWRIGHT = 11,
     BOBBLE = 12,
+
+    ALWAYS_LAST_MARKER
 };
 
 #endif
