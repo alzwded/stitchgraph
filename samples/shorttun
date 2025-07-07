@@ -1,12 +1,26 @@
 
 # round / tunisian
 30: co 8 turn
+# short left
     Tss 8 return
     Tss 6 return
     Tss 4 return
     Tss 2 return
     Tss 8 return
-    bo 2 Tss 6 return
+# short right; requires explicit "blanks" to get it to look like this;
+41: - 2 Tss 6 return
+    - 4 Tss 4 return
+    - 6 Tss 2 return
+    Tss 8 return
+# short right; alternatively use `pu' stitch to mark them
+# red and explicitly "slipped", although this implies you
+# "return" over them... it's up to the beholder, we can do both
+51: pu 2 Tss 6 return
+    pu 4 Tss 4 return
+    pu 6 Tss 2 return
+    Tss 8 return
+# alternating bind offs
+61: bo 2 Tss 6 return
     Tss 4 return
-    Tss 2 return
-    bo 6
+    bo Tss 2 return
+    bo 5
