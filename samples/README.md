@@ -140,6 +140,64 @@ bo 8
 
 ![samples/incs\_simple.png](incs_simple.png)
 
+# kirby
+
+```
+# Kirby Amigurumi :-)
+
+# body
+ch 1 turn
+1: 6s join
+2: * 2s * 6 join
+3: * s 2s * 6 join
+4: * s 2 2s * 6 join
+5: * s 3 2s * 6 join
+6: * s 4 2s * 6 join
+
+7: s 36 join
+8: s 36 join
+9: s 36 join
+10: s 36 join
+11: s 36 join
+
+12: * s2tog s 4 * 6 join
+13: * s2tog s 3 * 6 join
+14: * s2tog s 2 * 6 join
+15: * s2tog s 1 * 6 join
+16: * s2tog * 6 join
+
+0: sk 6 join
+
+# arm, mk 2
+0: ch 1
+1: 5s join
+2: * 2s * 5 join
+3: * s 2s * 5 join
+4: s 15 join
+5: s 15 join
+
+0: sk 15 join
+
+# leg, mk 2
+0: ch 1
+1: 3s join
+2: 2s 3 join
+3: * s 2s * 3 join
+4: * s 2 2s * 3 join
+5: * s 3 2s * 3 join
+6: s 15 join
+7: s 15 join
+8: s 15 join
+9: s 15 join
+10: s 15 join
+11: * s2tog s * 5 join
+12: s2tog 5 join
+
+# embroider eyes and mouth or whatnot
+```
+
+![samples/kirby.png](kirby.png)
+
 # lace
 
 ```

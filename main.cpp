@@ -356,8 +356,15 @@ Row parse_row(std::string const& insline)
                     } while(s.empty());
                     if(ok2) {
                         try {
-                            rep = std::stoi(s);
-                            LOG("...parsed count = %d", rep);
+                            size_t ncharparsed = -1;
+                            int rep1 = std::stoi(s, &ncharparsed);
+                            if(ncharparsed == s.size()) {
+                                rep = rep1;
+                                LOG("...parsed count = %d", rep);
+                            } else {
+                                LOG("...there were some extra characters in %s, probably a stitch and not a count", s.c_str());
+                                ok2 = false;
+                            }
                         } catch(...) {
                             ok2 = false;
                         }
@@ -561,12 +568,12 @@ void process_stitch_file(std::string const& fname)
             if(it->takes > it->puts) {
                 int i = 0;
                 for(; i < it->puts; ++i)  fprintf(stderr, "%s&", it->key);
-                for(; i < it->takes; ++i) fprintf(stderr, ". ");
+                for(; i < it->takes; ++i) fprintf(stderr, ".%c", i < it->takes - 1 ? '&' : ' ');
             }
             else if(it->takes < it->puts) {
                 int i = 0;
                 for(; i < it->takes; ++i) fprintf(stderr, "%s&", it->key);
-                for(; i < it->puts; ++i)  fprintf(stderr, "%s ", it->key);
+                for(; i < it->puts; ++i)  fprintf(stderr, "%s%c", it->key, i < it->puts - 1 ? '&' : ' ');
             }
             else if(it->IsSlipped()) { for(int i = 0; i < it->takes; ++i) fprintf(stderr, "%s ", it->key); }
             else if(it->IsBoundOff()) { for(int i = 0; i < it->takes; ++i) fprintf(stderr, "%s ", it->key); }
@@ -966,16 +973,21 @@ void process_stitch_file(std::string const& fname)
             }
             drawGlyph(hcanvas, rown[rown.size() - 1 - z], BLACK, x, (2 + rows.size() - 1 - rowy) * 9 - 3);
         }
+
         // stitch count
-        // you'd need to be mad to have more than 999
-        std::string stcnt = std::to_string(rows[rowy].CountNormal());
-        drawGlyph(hcanvas, '(', BLACK, 3 * 9 + 9 + dotsExtent + 9 + 3 * 9 + 9 + (2 - stcnt.size()) * 9, (2 + rows.size() - 1 - rowy) * 9 - 3);
-        for(int z = 0; z < stcnt.size(); ++z) {
-            int x = 0;
-            x = 3 * 9 + 9 + dotsExtent + 9 + 3 * 9 + 9 + 9 + z * 9 + (2 - stcnt.size()) * 9;
-            drawGlyph(hcanvas, stcnt[z], BLACK, x, (2 + rows.size() - 1 - rowy) * 9 - 3);
+        // skip if 0
+        auto nstcnt = rows[rowy].CountNormal();
+        std::string stcnt = std::to_string(nstcnt);
+        if(nstcnt > 0) {
+            // you'd need to be mad to have more than 999
+            drawGlyph(hcanvas, '(', BLACK, 3 * 9 + 9 + dotsExtent + 9 + 3 * 9 + 9 + (2 - stcnt.size()) * 9, (2 + rows.size() - 1 - rowy) * 9 - 3);
+            for(int z = 0; z < stcnt.size(); ++z) {
+                int x = 0;
+                x = 3 * 9 + 9 + dotsExtent + 9 + 3 * 9 + 9 + 9 + z * 9 + (2 - stcnt.size()) * 9;
+                drawGlyph(hcanvas, stcnt[z], BLACK, x, (2 + rows.size() - 1 - rowy) * 9 - 3);
+            }
+            drawGlyph(hcanvas, ')', BLACK, 3 * 9 + 9 + dotsExtent + 9 + 3 * 9 + 4 * 9, (2 + rows.size() - 1 - rowy) * 9 - 3);
         }
-        drawGlyph(hcanvas, ')', BLACK, 3 * 9 + 9 + dotsExtent + 9 + 3 * 9 + 4 * 9, (2 + rows.size() - 1 - rowy) * 9 - 3);
 
         // stitches proper
         for(int rowx = 0; rowx < numDots[rowy]; ++rowx) {
