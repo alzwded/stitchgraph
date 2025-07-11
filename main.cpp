@@ -199,30 +199,6 @@ struct Row
     }
 };
 
-// Represents a dot/knot we make on the canvas
-//
-// These abstract away the breaks and blanks and whatnot, these end up being the drawing
-// instructions
-struct Dot
-{
-    // Struct to represent lines to draw
-    struct LineTo {
-        Dot* dotRef = nullptr;
-        MapEntry* lineInfo = nullptr;
-        Dot* otherDotRef = nullptr; // if not null, it will draw the line inbetween those dots; to support MapEntry::INBETWEEN
-    };
-
-    int x = 0, y = 0; // canvas coordinates
-    bool skip = false; // true for "-" / P stitch, to remove it from alignment
-    Stitch* stitchRef = nullptr; // which stitch are we referencing (for DOT, or if it's blank or whatnot)
-    std::list<LineTo> lines; // where do we draw rows to (prev on row, stitches below)
-    std::list<Dot*> connectedTo; // for weight calculation
-    Dot* dotRef = nullptr; // this stitch was slipped up / was a short row, so we reference a dot faaar below
-    bool disconnected = false; // true if it should draw a line to the previous stitch on the same line
-    bool markerLeft = false; // place EXCLAMATION to the left of this stitch on the canvas
-    bool markerRight = false; // place EXCLAMATION to the right of this stitch on the canvas
-};
-
 // Parse a row of stitches per stitches.h and returns a Row
 //
 // Reentrant -- calls itself recursively if it encounters *, ( or [
@@ -1029,6 +1005,15 @@ void process_stitch_file(std::string const& fname)
     // technically the canvas only gets rendered here
     writeCanvas(hcanvas, graphFname.c_str());
     destroyCanvas(hcanvas);
+
+    for(size_t i = 0; i < dots.size(); ++i) {
+        dots[i].resize(numDots[i]);
+    }
+
+    // write out cylinder
+    LOG("Writing %s.obj", fname.c_str());
+    extern void WriteCylinder(std::string const&, std::vector<std::vector<Dot>>&, int, int, int, int, int, int, float);
+    WriteCylinder(fname, dots, 3*9 + 9, 9 /* never any downward lines on first row*/, 3*9+9+dotsExtent, canvasHeight /* 9px of padding at top */, 3*9+9, canvasWidth, 2 * 3.14159);
 }
 
 static const char* FLAGS = "h"; // so many options!

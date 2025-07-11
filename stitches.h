@@ -456,4 +456,30 @@ static std::vector<Stitch> STITCHES {
         },
 };
 
+#include <list>
+// Represents a dot/knot we make on the canvas
+//
+// These abstract away the breaks and blanks and whatnot, these end up being the drawing
+// instructions
+struct Dot
+{
+    // Struct to represent lines to draw
+    struct LineTo {
+        Dot* dotRef = nullptr;
+        MapEntry* lineInfo = nullptr;
+        Dot* otherDotRef = nullptr; // if not null, it will draw the line inbetween those dots; to support MapEntry::INBETWEEN
+    };
+
+    int x = 0, y = 0; // canvas coordinates
+    bool skip = false; // true for "-" / P stitch, to remove it from alignment
+    Stitch* stitchRef = nullptr; // which stitch are we referencing (for DOT, or if it's blank or whatnot)
+    std::list<LineTo> lines; // where do we draw rows to (prev on row, stitches below)
+    std::list<Dot*> connectedTo; // for weight calculation
+    Dot* dotRef = nullptr; // this stitch was slipped up / was a short row, so we reference a dot faaar below
+    bool disconnected = false; // true if it should draw a line to the previous stitch on the same line
+    bool markerLeft = false; // place EXCLAMATION to the left of this stitch on the canvas
+    bool markerRight = false; // place EXCLAMATION to the right of this stitch on the canvas
+};
+
+
 #endif
