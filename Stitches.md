@@ -117,7 +117,34 @@
 - Description: knit front and back 
 - takes: 1
 - puts:  2
-- marker: ARROWDOWN
+- marker: ARROWRIGHT
+- map: (0 <- 0) (1 <- 0) 
+
+## `kbf`
+
+- Symbol: `kbf`
+- Description: knit back and front 
+- takes: 1
+- puts:  2
+- marker: ARROWLEFT
+- map: (0 <- 0) (1 <- 0) 
+
+## `kll`
+
+- Symbol: `kll`
+- Description: knit left loop 
+- takes: 1
+- puts:  2
+- marker: ARROWLEFT
+- map: (0 <- 0) (1 <- 0) 
+
+## `krl`
+
+- Symbol: `krl`
+- Description: knit right loop 
+- takes: 1
+- puts:  2
+- marker: ARROWRIGHT
 - map: (0 <- 0) (1 <- 0) 
 
 ## `M`
@@ -173,9 +200,9 @@
 - puts:  1
 - marker: CIRCLE
 
-## `ml`
+## `m1l`
 
-- Symbol: `ml`
+- Symbol: `m1l`
 - Description: make 1 left 
 - takes: 0
 - puts:  1
@@ -190,9 +217,9 @@
 - puts:  1
 - marker: ARROWDOWN
 
-## `mr`
+## `m1r`
 
-- Symbol: `mr`
+- Symbol: `m1r`
 - Description: make 1 right 
 - takes: 0
 - puts:  1

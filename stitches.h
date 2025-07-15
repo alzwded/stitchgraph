@@ -157,7 +157,34 @@ static std::vector<Stitch> STITCHES {
         {
             "kfb", "knit front and back", Stitch::N,
             1, 2,
-            ARROWDOWN, GREEN,
+            ARROWRIGHT, GREEN,
+            {
+                { 0, 0, GREEN },
+                { 0, 1, BLACK },
+            }
+        },
+        {
+            "kbf", "knit back and front", Stitch::N,
+            1, 2,
+            ARROWLEFT, GREEN,
+            {
+                { 0, 0, BLACK },
+                { 0, 1, GREEN },
+            }
+        },
+        {
+            "kll", "knit left loop", Stitch::N,
+            1, 2,
+            ARROWLEFT, GREEN,
+            {
+                { 0, 0, BLACK },
+                { 0, 1, GREEN },
+            }
+        },
+        {
+            "krl", "knit right loop", Stitch::N,
+            1, 2,
+            ARROWRIGHT, GREEN,
             {
                 { 0, 0, GREEN },
                 { 0, 1, BLACK },
@@ -220,11 +247,11 @@ static std::vector<Stitch> STITCHES {
             CIRCLE, GREEN,
         },
         {
-            "ml", "make 1 left", Stitch::N,
+            "m1l", "make 1 left", Stitch::N,
             0, 1,
             ARROWLEFT, GREEN,
             {
-                { MapEntry::INBETWEEN, 0, BLACK }
+                { MapEntry::INBETWEEN, 0, GREEN }
             }
         },
         {
@@ -233,11 +260,11 @@ static std::vector<Stitch> STITCHES {
             ARROWDOWN, GREEN,
         },
         {
-            "mr", "make 1 right", Stitch::N,
+            "m1r", "make 1 right", Stitch::N,
             0, 1,
             ARROWRIGHT, GREEN,
             {
-                { MapEntry::INBETWEEN, 0, BLUE }
+                { MapEntry::INBETWEEN, 0, GREEN }
             }
         },
         {

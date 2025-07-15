@@ -36,6 +36,30 @@ ch 1 turn
 
 ![samples/ball.png](ball.png)
 
+# blue
+
+```
+co 13 turn
+p 13 turn
+k 1 k2tog 1 yo 1 k 1 yo 1 SSK 1 k 1 k2tog 1 yo 1 k 1 yo 1 SSK 1 k 1 turn
+p 13 turn
+k2tog 1 yo 1 k 3 yo 1 SK2P 1 yo 1 k 3 yo 1 SSK 1 turn
+p 13 turn
+k 1 yo 1 SSK 1 k 1 k2tog 1 yo 1 k 1 yo 1 SSK 1 k 1 k2tog 1 yo 1 k 1 turn
+p 13 turn
+k 2 yo 1 SK2P 1 yo 1 k 3 yo 1 SK2P 1 yo 1 k 2 turn
+
+!garter k 13 turn
+k 13 turn
+k 13 turn
+k 13 turn
+k 13 turn
+k 13 turn
+k 6 kfb 1 k 6 turn
+```
+
+![samples/blue.png](blue.png)
+
 # edge
 
 ```
@@ -104,7 +128,7 @@ bo 1 / bo 1
 co 8 turn
 1: k 8 turn
 2: p 8 turn
-3: pu 1 k 1 * k 1 kfb * 2 k 2 turn
+3: pu 1 k 1   k 1 kfb   k 1 kbf  k 2 turn
 4: p 10 turn
 5: pu 1 * k 1 k2tog 1 k 1 * 2 k 1 turn
 6: p 8 !warn turn
@@ -113,7 +137,15 @@ co 8 turn
 8: k 3 M 1 k 4 M 1 k 3 return
 9: k 2 CDD 1 k 2 CDD 1 k 2 return
 
-bo 8
+10: k 2 kll k 2 krl k 2 turn
+11: p 10 turn
+12: k 2 SSK k 2 k2tog k 2 turn
+13: p 8 turn
+14: k 3 m1l k 2 m1r k 3 turn
+15: p 10 turn
+16: k 2 SK2P SK2P k 2 turn
+
+bo 6
 ```
 
 ![samples/incs.png](incs.png)
